@@ -1,1 +1,2 @@
 -- Statusline, themes, etc.
+return {}

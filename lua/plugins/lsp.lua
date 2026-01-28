@@ -1,1 +1,2 @@
 -- Language Server configurations
+return {}
