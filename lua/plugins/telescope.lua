@@ -1,0 +1,1 @@
+-- Fuzzy finder settings

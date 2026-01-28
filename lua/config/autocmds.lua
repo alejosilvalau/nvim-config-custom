@@ -1,0 +1,1 @@
+-- Automatic commands (e.g., trim whitespace on save)

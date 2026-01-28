@@ -1,0 +1,6 @@
+require("config.options")
+require("config.keymaps")
+require("config.autocmds")
+require("plugins.lsp")
+require("plugins.telescope")
+require("plugins.ui")
