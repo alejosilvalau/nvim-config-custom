@@ -8,16 +8,16 @@ return
 		style = "night", 
 		transparent = true, 
 		styles = {
-			sidebars = "transparent", -- Sets sidebar background to transparent
-			floats = "transparent",   -- Sets floating windows background to transparent
+			sidebars = "transparent", 
+			floats = "transparent",   
 		},
 
 		on_highlights = function(hl, c) 
 			hl.TelescopeBorder = {
-				fg = c.border_highlight, -- Uses the theme's highlight color for the border
+				fg = c.border_highlight, 
 			}
 			hl.FloatBorder = {
-				fg = c.border_highlight, -- Ensures floating window borders stay visible
+				fg = c.border_highlight, 
 			}
 		end,
 	},
