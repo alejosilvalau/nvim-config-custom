@@ -1,6 +1,5 @@
 config = function()  
 	require("nvim-treesitter.configs").setup({
-	    -- ... your existing config ...
 	    ensure_installed = {
 		"vimdoc",
 		"help",
