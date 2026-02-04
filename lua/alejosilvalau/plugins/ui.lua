@@ -8,8 +8,8 @@ return
 		style = "night", 
 		transparent = true, 
 		styles = {
-			sidebars = "transparent", 
-			floats = "transparent",   
+			sidebars = "border_highlight", 
+			floats = "border_highlight",   
 		},
 
 		on_highlights = function(hl, c) 

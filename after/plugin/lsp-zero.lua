@@ -1,3 +1,5 @@
+require("lazydev").setup({})
+
 local lsp = require('lsp-zero')
 
 require('mason').setup({})
@@ -14,19 +16,23 @@ require('mason-lspconfig').setup({
 		function(server_name)
 			require('lspconfig')[server_name].setup({})
 		end,
-		-- Special handler for lua_ls
-		lua_ls = function()
-			require('lspconfig').lua_ls.setup({
+		["lua_ls"] = function()
+			    require('lspconfig').lua_ls.setup({
 				settings = {
-					Lua = {
-						diagnostics = {
-							globals = {'vim'}
-						}
-					}
-				}
-			})
-		end,
-	}})
+				    Lua = {
+					diagnostics = {
+					    globals = { "vim" },
+					},
+					workspace = {
+					    library = vim.api.nvim_get_runtime_file("", true),
+					    checkThirdParty = false,
+					},
+					telemetry = { enable = false },
+				    },
+				},
+			    })
+			end,
+}})
 
 local cmp = require('cmp')
 local cmp_select = {behavior = cmp.SelectBehavior.Select}
@@ -49,7 +55,7 @@ lsp.on_attach(function(client, bufnr)
 local opts = {buffer = bufnr, remap = false}
 
 vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-vim.keymap.set("n", "D", function() vim.lsp.buf.hover() end, opts)
+vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, opts)
 vim.keymap.set("n", "<leader>ls", function() vim.lsp.buf.workspace_symbol() end, opts)
 vim.keymap.set("n", "<leader>ld", function() vim.diagnostic.open_float() end, opts)
 vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, opts)
@@ -59,6 +65,4 @@ vim.keymap.set("n", "<leader>lr", function() vim.lsp.buf.references() end, opts)
 vim.keymap.set("n", "<leader>lR", function() vim.lsp.buf.rename() end, opts)
 vim.keymap.set("n", "<leader>lh", function() vim.lsp.buf.signature_help() end, opts)
 end)
-
-
 
