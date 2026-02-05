@@ -22,3 +22,7 @@ vim.keymap.set("n", "<leader>w-", "<C-w>-", { desc = "Decrease height" })
 vim.keymap.set("n", "<leader>w+", "<C-w>+", { desc = "Increase height" })
 vim.keymap.set("n", "<leader>w<", "<C-w><", { desc = "Decrease width" })
 vim.keymap.set("n", "<leader>w>", "<C-w>>", { desc = "Increase width" })
+
+-- Move selected code
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
