@@ -27,5 +27,15 @@ vim.keymap.set("n", "<leader>w<", "<C-w><", { desc = "Decrease width" })
 vim.keymap.set("n", "<leader>w>", "<C-w>>", { desc = "Increase width" })
 
 -- Move selected code
-vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
-vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+
+-- yank to clipboard
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]], { desc = "Yank to system clipboard" })
+-- yank line to clipboard
+vim.keymap.set("n", "<leader>Y", [["+Y]], { desc = "Yank line to system clipboard" })
+
+-- paste from clipboard
+vim.keymap.set({ "n", "v" }, "<leader>p", [["+p]], { desc = "Paste from system clipboard" })
+-- paste before cursor from clipboard (normal mode)
+vim.keymap.set("n", "<leader>P", [["+P]], { desc = "Paste before from system clipboard" })
