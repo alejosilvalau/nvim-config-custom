@@ -26,6 +26,7 @@ local cmp_select = {behavior = cmp.SelectBehavior.Select}
 cmp.setup({
 	sources = {
     {name = 'lazydev', group_index = 0},
+    {name = 'copilot', group_index = 2},
 		{name = 'nvim_lsp'},
 		{name = 'buffer'},
 		{name = 'path'},
