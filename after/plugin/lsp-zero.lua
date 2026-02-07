@@ -14,36 +14,10 @@ require('mason-lspconfig').setup({
 		function(server_name)
 			require('lspconfig')[server_name].setup({})
 		end,
-		["lua_ls"] = function()
-                    local lspconfig = require("lspconfig")
-
-                    lspconfig.lua_ls.setup {
-                        capabilities = capabilities,
-                        settings = {
-                            Lua = {
-                                runtime = {
-                                    version = 'LuaJIT',
-                                },
-                                diagnostics = {
-                                    globals = { 'vim' },
-                                },
-                                workspace = {
-                                    library = vim.api.nvim_get_runtime_file("", true),
-                                    checkThirdParty = false,
-                                },
-                                format = {
-                                    enable = true,
-                                    -- Put format options here
-                                    -- NOTE: the value should be STRING!!
-                                    defaultConfig = {
-                                        indent_style = "space",
-                                        indent_size = "2",
-                                    }
-                                },
-                            }
-                        }
-                    }
-                end,
+    lua_ls = function()
+			require('lspconfig').lua_ls.setup({
+			})
+		end,
 }})
 
 local cmp = require('cmp')
@@ -51,6 +25,7 @@ local cmp_select = {behavior = cmp.SelectBehavior.Select}
 
 cmp.setup({
 	sources = {
+    {name = 'lazydev', group_index = 0},
 		{name = 'nvim_lsp'},
 		{name = 'buffer'},
 		{name = 'path'},
