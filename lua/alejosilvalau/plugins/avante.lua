@@ -17,6 +17,8 @@ return {
       auto_set_keymaps = true,
       auto_apply_diff_after_generation = false,
       support_paste_from_clipboard = false,
+      auto_approve_tool_permissions = false,
+      confirmation_ui_style = "inline_buttons",
     },
     providers = {
       copilot = {
@@ -25,7 +27,7 @@ return {
         timeout = 30000,
         temperature = 0,
         extra_request_body = {
-        max_tokens = 4096,
+          max_tokens = 4096,
         }
       },
     },
@@ -33,12 +35,12 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
-    "nvim-telescope/telescope.nvim", 
-    "hrsh7th/nvim-cmp", 
-    "stevearc/dressing.nvim", 
-    "folke/snacks.nvim", 
-    "nvim-tree/nvim-web-devicons", 
-    "zbirenbaum/copilot.lua", 
+    "nvim-telescope/telescope.nvim",
+    "hrsh7th/nvim-cmp",
+    "stevearc/dressing.nvim",
+    "folke/snacks.nvim",
+    "nvim-tree/nvim-web-devicons",
+    "zbirenbaum/copilot.lua",
     {
       "HakonHarnes/img-clip.nvim",
       event = "VeryLazy",
