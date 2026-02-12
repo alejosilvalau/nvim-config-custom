@@ -31,11 +31,20 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- yank to clipboard
-vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]], { desc = "Yank to system clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>yy", [["+y]], { desc = "Yank to system clipboard" })
 -- yank line to clipboard
-vim.keymap.set("n", "<leader>Y", [["+Y]], { desc = "Yank line to system clipboard" })
+vim.keymap.set("n", "<leader>yl", [["+Y]], { desc = "Yank line to system clipboard" })
 
 -- paste from clipboard
-vim.keymap.set({ "n", "v" }, "<leader>p", [["+p]], { desc = "Paste from system clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>pa", [["+p]], { desc = "Paste from system clipboard" })
 -- paste before cursor from clipboard (normal mode)
-vim.keymap.set("n", "<leader>P", [["+P]], { desc = "Paste before from system clipboard" })
+vim.keymap.set("n", "<leader>pb", [["+P]], { desc = "Paste before cursor from system clipboard" })
+-- Paste without overwriting register
+vim.keymap.set("v", "<leader>pp", '"_dp', { desc = "Paste without overwriting register" })
+
+-- Cursor movement
+vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines without moving cursor" })
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
+vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
+vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result and center" })
+vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result and center" })
