@@ -10,9 +10,8 @@ return {
   opts = {
     instructions_file = "avante.md",
     provider = "copilot",
-    auto_suggestions_provider = "copilot",
     behaviour = {
-      auto_suggestions = true,
+      auto_suggestions = false,
       auto_set_highlight_group = true,
       auto_set_keymaps = true,
       auto_apply_diff_after_generation = false,
@@ -40,7 +39,6 @@ return {
     "stevearc/dressing.nvim",
     "folke/snacks.nvim",
     "nvim-tree/nvim-web-devicons",
-    "zbirenbaum/copilot.lua",
     {
       "HakonHarnes/img-clip.nvim",
       event = "VeryLazy",
