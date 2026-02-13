@@ -36,9 +36,9 @@ vim.keymap.set({ "n", "v" }, "<leader>yy", [["+y]], { desc = "Yank to system cli
 vim.keymap.set("n", "<leader>yl", [["+Y]], { desc = "Yank line to system clipboard" })
 
 -- paste from clipboard
-vim.keymap.set({ "n", "v" }, "<leader>pa", [["+p]], { desc = "Paste from system clipboard" })
+vim.keymap.set({ "n", "v" }, "<leader>pa", [["+p]], { desc = "Paste from system clipboard after the cursor" })
 -- paste before cursor from clipboard (normal mode)
-vim.keymap.set("n", "<leader>pb", [["+P]], { desc = "Paste before cursor from system clipboard" })
+vim.keymap.set("n", "<leader>pb", [["+P]], { desc = "Paste before cursor from system clipboard before the cursor" })
 -- Paste without overwriting register
 vim.keymap.set("v", "<leader>pp", '"_dp', { desc = "Paste without overwriting register" })
 
