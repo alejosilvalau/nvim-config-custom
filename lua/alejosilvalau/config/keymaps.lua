@@ -2,8 +2,7 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
--- File explorer
-vim.keymap.set("n", "<leader>e", vim.cmd.Ex)
+vim.keymap.set("n", "<leader>e", vim.cmd.Ex, { desc = "Open file explorer" })
 
 -- Window navigation
 vim.keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Move to left window" })
@@ -30,17 +29,13 @@ vim.keymap.set("n", "<leader>w>", "<C-w>>", { desc = "Increase width" })
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
--- yank to clipboard
-vim.keymap.set({ "n", "v" }, "<leader>yy", [["+y]], { desc = "Yank to system clipboard" })
--- yank line to clipboard
+-- System clipboard integration
+vim.keymap.set({ "n", "v" }, "<leader>ys", [["+y]], { desc = "Yank to system clipboard" })
 vim.keymap.set("n", "<leader>yl", [["+Y]], { desc = "Yank line to system clipboard" })
-
--- paste from clipboard
 vim.keymap.set({ "n", "v" }, "<leader>pa", [["+p]], { desc = "Paste from system clipboard after the cursor" })
--- paste before cursor from clipboard (normal mode)
 vim.keymap.set("n", "<leader>pb", [["+P]], { desc = "Paste before cursor from system clipboard before the cursor" })
--- Paste without overwriting register
-vim.keymap.set("v", "<leader>pp", '"_dp', { desc = "Paste without overwriting register" })
+vim.keymap.set("v", "<leader>ps", '"_dp', { desc = "Paste without overwriting register" })
+vim.keymap.set({ "v", "n" }, "<leader>ds", '"_d', { desc = "Delete without overwriting register" })
 
 -- Cursor movement
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines without moving cursor" })
@@ -48,3 +43,13 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result and center" })
+
+-- Fix for vertical editing
+vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
+
+vim.keymap.set("n", "<leader>f", vim.lsp.buf.format, { desc = "Format buffer with LSP" })
+
+vim.keymap.set("n", "<leader>r", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+  { desc = "Search and replace word under cursor" })
+
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true }, { desc = "Make current file executable" })
