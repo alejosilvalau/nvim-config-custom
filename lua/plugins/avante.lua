@@ -54,4 +54,9 @@ return {
       },
     },
   },
+  keys = {
+    {"<leader>aa", function() require("avante.api").ask() end, mode = {"n", "v"}, desc = "avante: ask"},
+    {"<leader>ar", function() require("avante.api").refresh() end, mode = "n", desc = "avante: refresh"},
+    {"<leader>ae", function() require("avante.api").edit() end, mode = "n", desc = "avante: edit"},
+  },
 }
