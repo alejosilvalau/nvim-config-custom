@@ -1,6 +1,25 @@
 return {
   "nvim-treesitter/nvim-treesitter",
-  lazy = false, 
-  commit = "364b86ec8ea88e4a77ba676b93fb10829d6a9cb3", 
   build = ":TSUpdate",
+  config = function()
+    require("nvim-treesitter.configs").setup({
+      ensure_installed = {
+        "vimdoc",
+        "javascript",
+        "typescript",
+        "lua",
+        "jsdoc",
+        "bash",
+      },
+      sync_install = false,
+      auto_install = true,
+      indent = {
+        enable = true,
+      },
+      highlight = {
+        enable = true,
+        additional_vim_regex_highlighting = false,
+      },
+    })
+  end,
 }
