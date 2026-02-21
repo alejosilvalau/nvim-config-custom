@@ -22,6 +22,29 @@ return {
   config = function()
     local lsp = require('lsp-zero')
 
+    lsp.on_attach(function(client, bufnr)
+      local opts = { buffer = bufnr }
+
+      -- This mapping is different since we want it to load when opening a file, not when the LSP attaches
+      vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, { buffer = bufnr, desc = "LSP Definition" })
+      vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, { buffer = bufnr, desc = "LSP Hover" })
+      vim.keymap.set("n", "<leader>ls", function() vim.lsp.buf.workspace_symbol() end,
+        { buffer = bufnr, desc = "LSP Workspace Symbol" })
+      vim.keymap.set("n", "<leader>ld", function() vim.diagnostic.open_float() end,
+        { buffer = bufnr, desc = "LSP Diagnostic Float" })
+      vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end,
+        { buffer = bufnr, desc = "Next Diagnostic" })
+      vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end,
+        { buffer = bufnr, desc = "Prev Diagnostic" })
+      vim.keymap.set("n", "<leader>la", function() vim.lsp.buf.code_action() end,
+        { buffer = bufnr, desc = "LSP Code Action" })
+      vim.keymap.set("n", "<leader>lr", function() vim.lsp.buf.references() end,
+        { buffer = bufnr, desc = "LSP References" })
+      vim.keymap.set("n", "<leader>lR", function() vim.lsp.buf.rename() end, { buffer = bufnr, desc = "LSP Rename" })
+      vim.keymap.set("n", "<leader>lh", function() vim.lsp.buf.signature_help() end,
+        { buffer = bufnr, desc = "LSP Signature Help" })
+    end)
+
     require('mason').setup({})
     require('mason-lspconfig').setup({
       ensure_installed = {
@@ -36,8 +59,7 @@ return {
           require('lspconfig')[server_name].setup({})
         end,
         lua_ls = function()
-          require('lspconfig').lua_ls.setup({
-          })
+          require('lspconfig').lua_ls.setup({})
         end,
       }
     })
@@ -61,16 +83,4 @@ return {
       })
     })
   end,
-  keys = {
-    { "gd",         function() vim.lsp.buf.definition() end,                           desc = "LSP Definition" },
-    { "K",          function() vim.lsp.buf.hover() end,                                desc = "LSP Hover" },
-    { "<leader>ls", function() vim.lsp.buf.workspace_symbol() end,                     desc = "LSP Workspace Symbol" },
-    { "<leader>ld", function() vim.diagnostic.open_float() end,                        desc = "LSP Diagnostic Float" },
-    { "]d",         function() vim.diagnostic.jump({ count = 1, float = false }) end,  desc = "Next Diagnostic" },
-    { "[d",         function() vim.diagnostic.jump({ count = -1, float = false }) end, desc = "Prev Diagnostic" },
-    { "<leader>la", function() vim.lsp.buf.code_action() end,                          desc = "LSP Code Action" },
-    { "<leader>lr", function() vim.lsp.buf.references() end,                           desc = "LSP References" },
-    { "<leader>lR", function() vim.lsp.buf.rename() end,                               desc = "LSP Rename" },
-    { "<leader>lh", function() vim.lsp.buf.signature_help() end,                       desc = "LSP Signature Help" },
-  },
 }
