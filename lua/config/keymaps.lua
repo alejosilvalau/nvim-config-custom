@@ -2,7 +2,14 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
-vim.keymap.set("n", "<leader>e", vim.cmd.Ex, { desc = "Open file explorer" })
+vim.keymap.set("n", "<leader>e", function()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_config(win).relative ~= "" then
+      pcall(vim.api.nvim_win_close, win, true)
+    end
+  end
+  vim.cmd.Ex()
+end, { desc = "Open file explorer" })
 
 -- Window navigation
 vim.keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Move to left window" })
