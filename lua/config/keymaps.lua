@@ -32,6 +32,9 @@ vim.keymap.set("n", "<leader>w+", "<C-w>+", { desc = "Increase height" })
 vim.keymap.set("n", "<leader>w<", "<C-w><", { desc = "Decrease width" })
 vim.keymap.set("n", "<leader>w>", "<C-w>>", { desc = "Increase width" })
 
+
+vim.keymap.set("n", "<leader>b^", "<C-^>", { desc = "Change back to previous buffer" })
+
 -- Move selected code
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
