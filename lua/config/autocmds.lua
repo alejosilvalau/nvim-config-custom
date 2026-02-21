@@ -1,4 +1,5 @@
 -- Automatic commands (e.g., trim whitespace on save)
+
 --- Autoformat on save
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*",
