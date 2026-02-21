@@ -59,7 +59,20 @@ return {
           require('lspconfig')[server_name].setup({})
         end,
         lua_ls = function()
-          require('lspconfig').lua_ls.setup({})
+          require('lspconfig').lua_ls.setup({
+            settings = {
+              Lua = {
+                workspace = {
+                  checkThirdParty = false,
+                  maxPreload = 1000,
+                  preloadFileSize = 150,
+                },
+                completion = {
+                  workspaceWord = false,
+                },
+              }
+            }
+          })
         end,
       }
     })
