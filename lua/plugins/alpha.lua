@@ -22,7 +22,8 @@ return {
       dashboard.button("q", "  Quit", "<cmd>qa<CR>"),
     }
 
-    dashboard.section.footer.val = "  Have a great session!"
+    local plugins = require("lazy").stats().count
+    dashboard.section.footer.val = "⚡ " .. plugins .. " plugins loaded"
 
     dashboard.config.layout = {
       { type = "padding", val = vim.fn.max({ 2, vim.fn.floor(vim.fn.winheight(0) / 4) }) },
