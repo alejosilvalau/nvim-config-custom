@@ -12,5 +12,20 @@ return {
     { "<leader>fg", "<cmd>Telescope live_grep<cr>",  desc = "Live Grep" },
     { "<leader>fb", "<cmd>Telescope buffers<cr>",    desc = "Buffers" },
     { "<leader>fh", "<cmd>Telescope help_tags<cr>",  desc = "Help Tags" }
-  }
+  },
+  opts = {
+    defaults = {
+      vimgrep_arguments = {
+        "rg",
+        "--color=never",
+        "--no-heading",
+        "--with-filename",
+        "--line-number",
+        "--column",
+        "--smart-case",
+        "--no-ignore",
+        "--hidden",
+      },
+    },
+  },
 }
