@@ -21,3 +21,8 @@ vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 50
 
 vim.opt.colorcolumn = "80"
+
+vim.opt.mouse = "a"
+
+-- Use the system clipboard for all operations
+vim.opt.clipboard = "unnamedplus"

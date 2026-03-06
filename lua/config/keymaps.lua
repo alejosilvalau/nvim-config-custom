@@ -39,14 +39,6 @@ vim.keymap.set("n", "<leader>b^", "<C-^>", { desc = "Change back to previous buf
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
--- System clipboard integration
-vim.keymap.set({ "n", "v" }, "<leader>ys", [["+y]], { desc = "Yank to system clipboard" })
-vim.keymap.set("n", "<leader>yl", [["+Y]], { desc = "Yank line to system clipboard" })
-vim.keymap.set({ "n", "v" }, "<leader>pa", [["+p]], { desc = "Paste from system clipboard after the cursor" })
-vim.keymap.set("n", "<leader>pb", [["+P]], { desc = "Paste before cursor from system clipboard before the cursor" })
-vim.keymap.set("v", "<leader>ps", '"_dp', { desc = "Paste without overwriting register" })
-vim.keymap.set({ "v", "n" }, "<leader>ds", '"_d', { desc = "Delete without overwriting register" })
-
 -- Cursor movement
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines without moving cursor" })
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
