@@ -2,6 +2,8 @@
 
 -- Updates the working directory to the git root when entering a buffer
 vim.api.nvim_create_autocmd("BufEnter", {
+  desc = "Change working directory to git root",
+  group = vim.api.nvim_create_augroup("GitRootDirectory", { clear = true }),
   callback = function()
     local handle = io.popen('git -C ' .. vim.fn.expand('%:p:h') .. ' rev-parse --show-toplevel 2>/dev/null')
     local result = handle:read('*l')
