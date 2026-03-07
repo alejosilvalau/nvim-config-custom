@@ -7,11 +7,15 @@ return {
     { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
   },
   keys = {
-    { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
-    { "<leader>fG", "<cmd>Telescope git_files<cr>",  desc = "Find Git Files" },
-    { "<leader>fg", "<cmd>Telescope live_grep<cr>",  desc = "Live Grep" },
-    { "<leader>fb", "<cmd>Telescope buffers<cr>",    desc = "Buffers" },
-    { "<leader>fh", "<cmd>Telescope help_tags<cr>",  desc = "Help Tags" }
+    { "<leader>ff", "<cmd>Telescope find_files<cr>",  desc = "Find Files" },
+    { "<leader>fG", "<cmd>Telescope git_files<cr>",   desc = "Find Git Files" },
+    { "<leader>fg", "<cmd>Telescope live_grep<cr>",   desc = "Live Grep" },
+    { "<leader>fb", "<cmd>Telescope buffers<cr>",     desc = "Search Buffers" },
+    { "<leader>fh", "<cmd>Telescope help_tags<cr>",   desc = "Search Help" },
+    { "<leader>fk", "<cmd>Telescope keymaps<cr>",     desc = "Search Keymaps" },
+    { "<leader>f*", "<cmd>Telescope grep_string<cr>", desc = "Search Current Word" },
+    { "<leader>fd", "<cmd>Telescope diagnostics<cr>", desc = "Search Diagnostics" },
+    { "<leader>fo", "<cmd>Telescope oldfiles<cr>",    desc = "Search Old Files" },
   },
   opts = {
     defaults = {
