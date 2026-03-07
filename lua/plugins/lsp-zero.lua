@@ -6,6 +6,7 @@ return {
     { 'neovim/nvim-lspconfig' },
     { 'williamboman/mason.nvim' },
     { 'williamboman/mason-lspconfig.nvim' },
+    { 'nvim-telescope/telescope.nvim' },
 
     -- Autocompletion
     { 'hrsh7th/nvim-cmp' },
@@ -21,28 +22,27 @@ return {
   },
   config = function()
     local lsp = require('lsp-zero')
+    local telescope = require('telescope.builtin')
 
     lsp.on_attach(function(client, bufnr)
-      local opts = { buffer = bufnr }
+      local map = function(keys, func, desc)
+        vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
+      end
 
       -- This mapping is different since we want it to load when opening a file, not when the LSP attaches
-      vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, { buffer = bufnr, desc = "LSP Definition" })
-      vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, { buffer = bufnr, desc = "LSP Hover" })
-      vim.keymap.set("n", "<leader>ls", function() vim.lsp.buf.workspace_symbol() end,
-        { buffer = bufnr, desc = "LSP Workspace Symbol" })
-      vim.keymap.set("n", "<leader>ld", function() vim.diagnostic.open_float() end,
-        { buffer = bufnr, desc = "LSP Diagnostic Float" })
-      vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end,
-        { buffer = bufnr, desc = "Next Diagnostic" })
-      vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end,
-        { buffer = bufnr, desc = "Prev Diagnostic" })
-      vim.keymap.set("n", "<leader>la", function() vim.lsp.buf.code_action() end,
-        { buffer = bufnr, desc = "LSP Code Action" })
-      vim.keymap.set("n", "<leader>lr", function() vim.lsp.buf.references() end,
-        { buffer = bufnr, desc = "LSP References" })
-      vim.keymap.set("n", "<leader>lR", function() vim.lsp.buf.rename() end, { buffer = bufnr, desc = "LSP Rename" })
-      vim.keymap.set("n", "<leader>lh", function() vim.lsp.buf.signature_help() end,
-        { buffer = bufnr, desc = "LSP Signature Help" })
+      map("<leader>cd", function() telescope.lsp_definitions() end, "Code Definitions")
+      map("<leader>ct", function() telescope.lsp_type_definitions() end, "Code Type Definitions")
+      map("<leader>ci", function() telescope.lsp_implementations() end, "Code Implementations")
+      map("D", function() vim.lsp.buf.hover() end, "Code Hover")
+      map("<leader>cS", function() telescope.lsp_dynamic_workspace_symbols() end, "Code Workspace Symbols")
+      map("<leader>cs", function() telescope.lsp_document_symbols() end, "Code Document Symbols")
+      map("<leader>cD", function() vim.diagnostic.open_float() end, "Code Diagnostic Float")
+      map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next Diagnostic")
+      map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev Diagnostic")
+      map("<leader>ca", function() vim.lsp.buf.code_action() end, "Code Action")
+      map("<leader>cr", function() telescope.lsp_references() end, "Code References")
+      map("<leader>cR", function() vim.lsp.buf.rename() end, "Code Rename")
+      map("<leader>ch", function() vim.lsp.buf.signature_help() end, "Code Signature Help")
     end)
 
     require('mason').setup({})
