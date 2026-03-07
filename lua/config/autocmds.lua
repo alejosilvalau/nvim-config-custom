@@ -22,3 +22,15 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     vim.highlight.on_yank()
   end,
 })
+
+-- Delete unmodified buffers when leaving them
+vim.api.nvim_create_autocmd("BufLeave", {
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    if vim.bo[buf].buftype == "" and not vim.bo[buf].modified then
+      vim.schedule(function()
+        vim.api.nvim_buf_delete(buf, {})
+      end)
+    end
+  end,
+})

@@ -46,6 +46,7 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result and center" })
 vim.keymap.set("n", "<leader>o", "<C-o>", { desc = "Jump back in jump list" })
+vim.keymap.set("n", "<leader>i", "<C-i>", { desc = "Jump forwards in jump list" })
 
 -- Fix for vertical editing
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
