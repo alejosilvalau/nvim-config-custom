@@ -23,14 +23,20 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
--- Delete unmodified buffers when leaving them
-vim.api.nvim_create_autocmd("BufLeave", {
+local max_buffers = 5
+vim.api.nvim_create_autocmd("BufReadPost", {
   callback = function()
-    local buf = vim.api.nvim_get_current_buf()
-    if vim.bo[buf].buftype == "" and not vim.bo[buf].modified then
-      vim.schedule(function()
-        vim.api.nvim_buf_delete(buf, {})
-      end)
-    end
+    vim.schedule(function()
+      local bufs = vim.fn.getbufinfo({ buflisted = 1 })
+      if #bufs > max_buffers then
+        table.sort(bufs, function(a, b) return a.lastused < b.lastused end)
+        for i = 1, #bufs - max_buffers do
+          local buf = bufs[i]
+          if buf.changed == 0 then
+            vim.api.nvim_buf_delete(buf.bufnr, {})
+          end
+        end
+      end
+    end)
   end,
 })
