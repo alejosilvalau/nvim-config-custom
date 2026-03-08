@@ -13,14 +13,20 @@ return {
       "html",
       "css",
     },
-    sync_install = false,
-    auto_install = true,
-    indent = {
-      enable = true,
-    },
-    highlight = {
-      enable = true,
-      additional_vim_regex_highlighting = false,
-    },
   },
+  config = function(_, opts)
+    require("nvim-treesitter").setup(opts)
+
+    vim.api.nvim_create_autocmd("FileType", {
+      callback = function(ev)
+        local lang = ev.match
+
+        -- Install the parser if it's not already installed
+        vim.cmd("silent! TSInstall " .. lang)
+
+        -- Start the highlighter
+        pcall(vim.treesitter.start, ev.buf, lang)
+      end,
+    })
+  end,
 }

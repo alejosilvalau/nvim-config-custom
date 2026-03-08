@@ -23,6 +23,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
+-- Delete buffers that haven't been used recently when opening a new buffer
 local max_buffers = 5
 vim.api.nvim_create_autocmd("BufReadPost", {
   callback = function()
