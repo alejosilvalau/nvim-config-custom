@@ -7,7 +7,7 @@ return {
       enabled = true,
       auto_trigger = true,
       hide_during_completion = false,
-      debounce = 25,
+      debounce = 0,
     },
     panel = { enabled = false },
   },
