@@ -30,8 +30,8 @@ return {
         "--hidden",
       },
       mappings = {
-        i = { ["<CR>"] = require("telescope.actions").select_drop },
-        n = { ["<CR>"] = require("telescope.actions").select_drop },
+        i = { ["<CR>"] = require("telescope.actions").select_default },
+        n = { ["<CR>"] = require("telescope.actions").select_default },
       },
     },
     pickers = {
@@ -43,6 +43,8 @@ return {
   },
   config = function(_, opts)
     require("telescope").setup(opts)
+    require("telescope").load_extension("fzf")
+
     vim.keymap.set("n", "<leader>fn", function()
       require("telescope.builtin").find_files { cwd = vim.fn.stdpath "config" }
     end, { desc = "Search Neovim files" })
