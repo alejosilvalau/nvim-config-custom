@@ -23,6 +23,8 @@ return {
   config = function()
     local lsp = require('lsp-zero')
     local telescope = require('telescope.builtin')
+    local luasnip = require('luasnip')
+    require('luasnip.loaders.from_vscode').lazy_load()
 
     lsp.on_attach(function(_, bufnr)
       local map = function(keys, func, desc)
@@ -96,6 +98,19 @@ return {
         ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
         ['<C-y>'] = cmp.mapping.confirm({ select = true }),
         ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-d>'] = cmp.mapping.scroll_docs(4),
+        ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-e>'] = cmp.mapping.abort(),
+        ['<C-l>'] = cmp.mapping(function()
+          if luasnip.expand_or_locally_jumpable() then
+            luasnip.expand_or_jump()
+          end
+        end, { 'i', 's' }),
+        ['<C-h>'] = cmp.mapping(function()
+          if luasnip.locally_jumpable(-1) then
+            luasnip.jump(-1)
+          end
+        end, { 'i', 's' }),
       })
     })
   end,
