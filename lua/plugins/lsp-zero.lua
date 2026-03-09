@@ -90,6 +90,8 @@ return {
         { name = 'lazydev', group_index = 0 },
         { name = 'copilot', group_index = 2 },
         { name = 'nvim_lsp' },
+        { name = 'luasnip' },
+        { name = 'nvim_lua' },
         { name = 'buffer' },
         { name = 'path' },
       },
