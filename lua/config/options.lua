@@ -26,3 +26,10 @@ vim.opt.mouse = "a"
 
 -- Use the system clipboard for all operations
 vim.opt.clipboard = "unnamedplus"
+
+-- Folding settings
+vim.o.foldmethod = "expr"
+vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- Native function from Neovim
+vim.o.foldlevel = 99
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
