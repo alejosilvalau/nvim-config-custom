@@ -18,6 +18,13 @@ return
       hl.FloatBorder = {
         fg = c.border_highlight,
       }
+      hl.NormalFloat = {
+        bg = c.bg_dark, -- solid dark background for float windows
+      }
+      hl.FloatBorder = {
+        fg = c.border_highlight,
+        bg = c.bg_dark, -- match the border bg to the float bg
+      }
     end,
   },
   init = function()
