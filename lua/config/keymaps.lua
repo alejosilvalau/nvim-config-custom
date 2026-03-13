@@ -41,22 +41,14 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- Cursor movement
 vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines without moving cursor" })
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
-vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
+vim.keymap.set({ "n", "x" }, "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
+vim.keymap.set({ "n", "x" }, "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result and center" })
 vim.keymap.set("n", "<leader>o", "<C-o>", { desc = "Jump back in jump list" })
 vim.keymap.set("n", "<leader>i", "<C-i>", { desc = "Jump forwards in jump list" })
 
-
 vim.keymap.set("n", "<leader><leader>", ":nohlsearch<CR>", { desc = "Clear search highlights" })
-
--- Open opencode in right split
-vim.keymap.set('n', '<leader>aa', function()
-  vim.cmd('botright vsplit')
-  vim.cmd('terminal $SHELL -c "opencode ."')
-  vim.cmd('startinsert')
-end, { desc = 'Open opencode in right split' })
 
 -- Fix for vertical editing
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
