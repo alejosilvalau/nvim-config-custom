@@ -51,6 +51,7 @@ vim.keymap.set("n", "<leader>i", "<C-i>", { desc = "Jump forwards in jump list" 
 
 vim.keymap.set("n", "<leader><leader>", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
+-- Open opencode in right split
 vim.keymap.set('n', '<leader>aa', function()
   vim.cmd('botright vsplit')
   vim.cmd('terminal $SHELL -c "opencode ."')
