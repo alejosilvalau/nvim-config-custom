@@ -1,12 +1,11 @@
 return {
   "nickjvandyke/opencode.nvim",
-  version = "*", -- Latest stable release
+  version = "*",
   dependencies = {
     {
-      -- `snacks.nvim` integration is recommended, but optional
       ---@module "snacks" <- Loads `snacks.nvim` types for configuration intellisense
       "folke/snacks.nvim",
-      optional = true,
+      optional = false,
       opts = {
         input = {}, -- Enhances `ask()`
         picker = {  -- Enhances `select()`
@@ -27,12 +26,10 @@ return {
   config = function()
     ---@type opencode.Opts
     vim.g.opencode_opts = {
-      -- Your configuration, if any; goto definition on the type or field for details
     }
 
-    vim.o.autoread = true -- Required for `opts.events.reload`
+    vim.o.autoread = true
 
-    -- Recommended/example keymaps
     vim.keymap.set({ "n", "x" }, "<leader>aa", function() require("opencode").ask("@this: ", { submit = true }) end,
       { desc = "Ask opencode…" })
     vim.keymap.set({ "n", "x" }, "<leader>as", function() require("opencode").select() end,
