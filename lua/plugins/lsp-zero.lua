@@ -46,6 +46,18 @@ return {
       map("<leader>cr", telescope.lsp_references, "Code References")
       map("<leader>cR", vim.lsp.buf.rename, "Code Rename")
       map("<leader>ch", vim.lsp.buf.signature_help, "Code Signature Help")
+
+      if client.name == "ltex_plus" then
+        map("<leader>le", function()
+          client.config.settings.ltex.language = "en-US"
+          client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+        end, "LTeX: switch to English")
+
+        map("<leader>ls", function()
+          client.config.settings.ltex.language = "es"
+          client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+        end, "LTeX: switch to Spanish")
+      end
     end)
 
     require('mason').setup({})
@@ -57,7 +69,8 @@ return {
         'html',
         'cssls',
         'emmet_ls',
-        'bashls'
+        'bashls',
+        'ltex_plus'
       },
       handlers = {
         function(server_name)
@@ -77,6 +90,23 @@ return {
                 },
               }
             }
+          })
+        end,
+        ltex_plus = function()
+          print("ltex_plus handler running")
+          require('lspconfig').ltex_plus.setup({
+            settings = {
+              ltex = {
+                language = "en-US",
+                additionalRules = {
+                  enablePickyRules = false,
+                },
+                disabledRules = {
+                  ["en-US"] = { "WHITESPACE_RULE" },
+                  ["es"] = { "WHITESPACE_RULE" },
+                },
+              },
+            },
           })
         end,
       }
