@@ -17,4 +17,14 @@ return {
     window_overlap_clear_enabled = true,
     editor_only_render_when_focused = true,
   },
+  keys = {
+    {
+      "<leader>ic",
+      function()
+        local ok, image = pcall(require, "image")
+        if ok then image.clear() end
+      end,
+      desc = "Clear rendered images",
+    },
+  },
 }
