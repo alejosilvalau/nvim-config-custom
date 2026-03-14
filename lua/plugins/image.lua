@@ -2,8 +2,9 @@ return {
   "3rd/image.nvim",
   build = false,
   opts = {
+    backend = "kitty",
     processor = "magick_cli",
-    -- Ghostty handles passthrough well, but it must be enabled here
+    tmux_show_only_in_active_window = true,
     tmux_passthrough = true,
     integrations = {
       markdown = {
@@ -12,7 +13,6 @@ return {
         filetypes = { "markdown", "vimwiki" },
       },
     },
-    -- These should be set to true for the best experience in Ghostty/Tmux
     window_overlap_clear_enabled = true,
     editor_only_render_when_focused = true,
   },
