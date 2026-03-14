@@ -86,3 +86,6 @@ vim.keymap.set("n", "<leader>nc", function()
     end
   end
 end, { buffer = true, desc = "Toggle checkbox" })
+
+-- Fast fix: pick the first suggestion for the word under cursor
+vim.keymap.set("n", "<leader>nf", "1z=", { desc = "Spell Fix (First suggestion)" })

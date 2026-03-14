@@ -50,3 +50,11 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end)
   end,
 })
+
+-- Automatically generate spell files from .add files
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = "*.add",
+  callback = function()
+    vim.cmd("mkspell! " .. vim.fn.expand("<afile>"))
+  end,
+})

@@ -33,3 +33,10 @@ vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- Native function from Neovi
 vim.o.foldlevel = 99
 vim.o.foldlevelstart = 99
 vim.o.foldenable = true
+
+-- Spell checking settings
+vim.opt.spell = true
+vim.opt.spelllang = { 'en', 'es' }
+
+vim.cmd('hi SpellBad gui=undercurl guisp=Red')
+vim.cmd('hi SpellCap gui=undercurl guisp=Blue')

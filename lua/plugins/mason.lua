@@ -62,30 +62,11 @@ return {
       }
     })
 
-    vim.lsp.config('ltex_plus', {
-      settings = {
-        ltex = {
-          language = "auto",
-          additionalRules = {
-            enablePickyRules = false,
-            motherTongue = "es",
-          },
-          disabledRules = {
-            ["en-US"] = { "WHITESPACE_RULE" },
-            ["es"] = { "WHITESPACE_RULE" },
-          },
-        },
-      },
-      on_new_config = function(config)
-        config.cmd = { "ltex-ls-plus", "--jvm-opts=-Xmx256m" }
-      end,
-    })
-
     require('mason').setup({})
     require('mason-lspconfig').setup({
       ensure_installed = {
         'ts_ls', 'lua_ls', 'tailwindcss', 'html',
-        'cssls', 'emmet_ls', 'bashls', 'ltex_plus'
+        'cssls', 'emmet_ls', 'bashls'
       },
     })
 
