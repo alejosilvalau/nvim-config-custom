@@ -37,7 +37,12 @@ return
       hl.SnacksInputNormal = { bg = c.bg_dark }
       hl.SnacksInputBorder = { fg = c.border_highlight, bg = c.bg_dark }
 
+      -- Avante
+      hl.AvanteSidebarNormal = { bg = "NONE", fg = c.fg }
+      hl.AvanteSidebarWinSeparator = { fg = c.bg_dark }
+
       -- General floats (covers anything else like LSP hover, diagnostics, etc.)
+      hl.WinSeparator = { fg = c.bg_dark }
       hl.NormalFloat = { bg = c.bg_dark }
       hl.FloatBorder = { fg = c.border_highlight, bg = c.bg_dark }
     end,
