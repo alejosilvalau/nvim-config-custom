@@ -67,3 +67,22 @@ vim.keymap.set("n", "<leader>r", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
   { desc = "Search and replace word under cursor" })
 
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
+
+-- Toggle markdown checkboxes
+vim.keymap.set("n", "<leader>nc", function()
+  local line = vim.api.nvim_get_current_line()
+  if line:match("%- %[x%]") then
+    vim.api.nvim_set_current_line((line:gsub("%- %[x%]", "- [ ]")))
+  elseif line:match("%- %[ %]") then
+    vim.api.nvim_set_current_line((line:gsub("%- %[ %]", "- [x]")))
+  else
+    -- no checkbox structure, create one
+    local trimmed = line:match("^%s*%- (.+)") -- already a list item
+    if trimmed then
+      vim.api.nvim_set_current_line((line:gsub("^(%s*%- )", "%1[ ] ")))
+    else
+      -- not a list item, wrap the whole line
+      vim.api.nvim_set_current_line((line:gsub("^(%s*)(.*)", "%1- [ ] %2")))
+    end
+  end
+end, { buffer = true, desc = "Toggle checkbox" })
