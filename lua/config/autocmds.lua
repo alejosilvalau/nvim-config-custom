@@ -14,6 +14,15 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end,
 })
 
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost" }, {
+  pattern = "*",
+  desc = "Clear rendered images when leaving buffer or focus",
+  callback = function()
+    local ok, image = pcall(require, "image")
+    if ok then image.clear() end
+  end,
+})
+
 -- Highlight when yanking text
 vim.api.nvim_create_autocmd("TextYankPost", {
   desc = "Highlight on yank",

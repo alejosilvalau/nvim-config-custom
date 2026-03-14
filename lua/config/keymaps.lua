@@ -3,12 +3,6 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 vim.keymap.set("n", "<leader>e", function()
-  -- Clear all rendered images first
-  local ok, image = pcall(require, "image")
-  if ok then
-    image.clear()
-  end
-
   -- Close floating windows
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     if vim.api.nvim_win_get_config(win).relative ~= "" then
