@@ -12,45 +12,34 @@ return
     },
 
     on_highlights = function(hl, c)
-      hl.TelescopeNormal = {
-        bg = c.bg_dark,
-      }
-      hl.TelescopeBorder = {
-        fg = c.border_highlight,
-        bg = c.bg_dark,
-      }
-      hl.TelescopePromptNormal = {
-        bg = c.bg_dark,
-      }
-      hl.TelescopePromptBorder = {
-        fg = c.border_highlight,
-        bg = c.bg_dark,
-      }
-      hl.SnacksPickerNormal = {
-        bg = c.bg_dark,
-      }
-      hl.SnacksPickerBorder = {
-        fg = c.border_highlight,
-        bg = c.bg_dark,
-      }
-      hl.SnacksPickerInputNormal = {
-        bg = c.bg_dark,
-      }
-      hl.SnacksPickerInputBorder = {
-        fg = c.border_highlight,
-        bg = c.bg_dark,
-      }
-      hl.FloatBorder = {
-        bg = c.bg_dark,
-        fg = c.border_highlight,
-      }
-      hl.NormalFloat = {
-        bg = c.bg_dark, -- solid dark background for float windows
-      }
-      hl.FloatBorder = {
-        fg = c.border_highlight,
-        bg = c.bg_dark, -- match the border bg to the float bg
-      }
+      -- Telescope
+      hl.TelescopeNormal = { bg = c.bg_dark }
+      hl.TelescopeBorder = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.TelescopePromptNormal = { bg = c.bg_dark }
+      hl.TelescopePromptBorder = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.TelescopePromptTitle = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.TelescopePreviewNormal = { bg = c.bg_dark }
+      hl.TelescopePreviewBorder = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.TelescopePreviewTitle = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.TelescopeResultsNormal = { bg = c.bg_dark }
+      hl.TelescopeResultsBorder = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.TelescopeResultsTitle = { fg = c.border_highlight, bg = c.bg_dark }
+
+      -- Snacks picker
+      hl.SnacksPickerNormal = { bg = c.bg_dark }
+      hl.SnacksPickerBorder = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.SnacksPickerInputNormal = { bg = c.bg_dark }
+      hl.SnacksPickerInputBorder = { fg = c.border_highlight, bg = c.bg_dark }
+      hl.SnacksPickerPreviewNormal = { bg = c.bg_dark }
+      hl.SnacksPickerPreviewBorder = { fg = c.border_highlight, bg = c.bg_dark }
+
+      -- Snacks input
+      hl.SnacksInputNormal = { bg = c.bg_dark }
+      hl.SnacksInputBorder = { fg = c.border_highlight, bg = c.bg_dark }
+
+      -- General floats (covers anything else like LSP hover, diagnostics, etc.)
+      hl.NormalFloat = { bg = c.bg_dark }
+      hl.FloatBorder = { fg = c.border_highlight, bg = c.bg_dark }
     end,
   },
   init = function()
