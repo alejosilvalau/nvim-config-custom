@@ -13,5 +13,6 @@ return {
       -- If true, it skips indenting H1 and only starts from H2 onwards
       skip_level = 1,
     },
+    render_modes = true,
   },
 }
