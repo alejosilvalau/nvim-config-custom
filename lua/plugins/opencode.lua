@@ -26,6 +26,7 @@ return {
   config = function()
     ---@type opencode.Opts
     vim.g.opencode_opts = {
+      hooks = {},
     }
 
     vim.o.autoread = true

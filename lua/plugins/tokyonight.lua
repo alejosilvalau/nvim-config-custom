@@ -12,10 +12,36 @@ return
     },
 
     on_highlights = function(hl, c)
+      hl.TelescopeNormal = {
+        bg = c.bg_dark,
+      }
       hl.TelescopeBorder = {
         fg = c.border_highlight,
+        bg = c.bg_dark,
+      }
+      hl.TelescopePromptNormal = {
+        bg = c.bg_dark,
+      }
+      hl.TelescopePromptBorder = {
+        fg = c.border_highlight,
+        bg = c.bg_dark,
+      }
+      hl.SnacksPickerNormal = {
+        bg = c.bg_dark,
+      }
+      hl.SnacksPickerBorder = {
+        fg = c.border_highlight,
+        bg = c.bg_dark,
+      }
+      hl.SnacksPickerInputNormal = {
+        bg = c.bg_dark,
+      }
+      hl.SnacksPickerInputBorder = {
+        fg = c.border_highlight,
+        bg = c.bg_dark,
       }
       hl.FloatBorder = {
+        bg = c.bg_dark,
         fg = c.border_highlight,
       }
       hl.NormalFloat = {
