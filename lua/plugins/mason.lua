@@ -68,6 +68,7 @@ return {
           language = "auto",
           additionalRules = {
             enablePickyRules = false,
+            motherTongue = "es",
           },
           disabledRules = {
             ["en-US"] = { "WHITESPACE_RULE" },
@@ -75,6 +76,9 @@ return {
           },
         },
       },
+      on_new_config = function(config)
+        config.cmd = { "ltex-ls-plus", "--jvm-opts=-Xmx256m" }
+      end,
     })
 
     require('mason').setup({})
