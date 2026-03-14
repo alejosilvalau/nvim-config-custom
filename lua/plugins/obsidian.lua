@@ -35,4 +35,35 @@ return {
       enable = false
     },
   },
+  -- Checkbox toggle
+  config = function(_, opts)
+    require("obsidian").setup(opts)
+
+    vim.api.nvim_create_autocmd("BufEnter", {
+      pattern = "*.md",
+      callback = function()
+        local ok, obsidian = pcall(require, "obsidian")
+        if not ok then return end
+        if obsidian.get_client() == nil then return end
+
+        vim.keymap.set("n", "<M-CR>", function()
+          local line = vim.api.nvim_get_current_line()
+          if line:match("%- %[x%]") then
+            vim.api.nvim_set_current_line((line:gsub("%- %[x%]", "- [ ]")))
+          elseif line:match("%- %[ %]") then
+            vim.api.nvim_set_current_line((line:gsub("%- %[ %]", "- [x]")))
+          else
+            -- no checkbox structure, create one
+            local trimmed = line:match("^%s*%- (.+)") -- already a list item
+            if trimmed then
+              vim.api.nvim_set_current_line((line:gsub("^(%s*%- )", "%1[ ] ")))
+            else
+              -- not a list item, wrap the whole line
+              vim.api.nvim_set_current_line((line:gsub("^(%s*)(.*)", "%1- [ ] %2")))
+            end
+          end
+        end, { buffer = true, desc = "Toggle checkbox" })
+      end,
+    })
+  end,
 }
