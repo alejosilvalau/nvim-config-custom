@@ -19,29 +19,32 @@ vim.keymap.set("n", "<leader>e", function()
   vim.cmd.Ex()
 end, { desc = "Open file explorer" })
 
--- Window navigation
-vim.keymap.set("n", "<leader>wh", "<C-w>h", { desc = "Move to left window" })
-vim.keymap.set("n", "<leader>wj", "<C-w>j", { desc = "Move to down window" })
-vim.keymap.set("n", "<leader>wk", "<C-w>k", { desc = "Move to up window" })
-vim.keymap.set("n", "<leader>wl", "<C-w>l", { desc = "Move to right window" })
+-- Window resizing (enter resize mode with <leader>wr, then use +/-/</>  to resize, q or <Esc> to exit)
+local function resize_mode()
+  print("Resize mode: + - < > (q/<Esc> to exit)")
+  while true do
+    local ok, key = pcall(vim.fn.getcharstr)
+    if not ok then break end
+    if key == "+" then
+      vim.cmd("resize +2")
+    elseif key == "-" then
+      vim.cmd("resize -2")
+    elseif key == "<" then
+      vim.cmd("vertical resize -2")
+    elseif key == ">" then
+      vim.cmd("vertical resize +2")
+    elseif key == "=" then
+      vim.cmd("wincmd =")
+    elseif key == "q" or key == "\27" then
+      break -- \27 = Esc
+    end
+    vim.cmd("redraw")
+  end
+  print("Resize mode exited")
+end
 
--- Window splitting
-vim.keymap.set("n", "<leader>ws", "<C-w>s", { desc = "Split window horizontally" })
-vim.keymap.set("n", "<leader>wv", "<C-w>v", { desc = "Split window vertically" })
+vim.keymap.set("n", "<leader>wr", resize_mode, { desc = "Enter resize mode" })
 
--- Window closing
-vim.keymap.set("n", "<leader>wq", "<C-w>q", { desc = "Close window" })
-vim.keymap.set("n", "<leader>wo", "<C-w>o", { desc = "Close other windows" })
-
--- Window resizing
-vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Equal window sizes" })
-vim.keymap.set("n", "<leader>w-", "<C-w>-", { desc = "Decrease height" })
-vim.keymap.set("n", "<leader>w+", "<C-w>+", { desc = "Increase height" })
-vim.keymap.set("n", "<leader>w<", "<C-w><", { desc = "Decrease width" })
-vim.keymap.set("n", "<leader>w>", "<C-w>>", { desc = "Increase width" })
-
-
-vim.keymap.set("n", "<leader>b^", "<C-^>", { desc = "Change back to previous buffer" })
 
 -- Move selected code
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
@@ -53,8 +56,6 @@ vim.keymap.set({ "n", "x" }, "<C-d>", "<C-d>zz", { desc = "Scroll down and cente
 vim.keymap.set({ "n", "x" }, "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result and center" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result and center" })
-vim.keymap.set("n", "<leader>o", "<C-o>", { desc = "Jump back in jump list" })
-vim.keymap.set("n", "<leader>i", "<C-i>", { desc = "Jump forwards in jump list" })
 
 vim.keymap.set("n", "<leader><leader>", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
