@@ -14,6 +14,6 @@ return {
     },
   },
   keys = {
-    { "<leader>p", "<cmd>PasteImage<cr>", mode = "n", desc = "Paste image from clipboard" },
+    { "<leader>ip", "<cmd>PasteImage<cr>", mode = "n", desc = "Paste image from clipboard" },
   },
 }
