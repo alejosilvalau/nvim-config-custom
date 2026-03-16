@@ -65,6 +65,13 @@ vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { desc = "Previous quickfix item"
 vim.keymap.set("n", "<M-Down>", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
 vim.keymap.set("n", "<M-Up>", "<cmd>cprev<CR>", { desc = "Previous quickfix item" })
 
+-- Location list navigation
+vim.keymap.set("n", "<M-j>", "<cmd>lnext<CR>", { desc = "Next location item" })
+vim.keymap.set("n", "<M-k>", "<cmd>lprev<CR>", { desc = "Previous location item" })
+
+vim.keymap.set("n", "<M-Down>", "<cmd>lnext<CR>", { desc = "Next location item" })
+vim.keymap.set("n", "<M-Up>", "<cmd>lprev<CR>", { desc = "Previous location item" })
+
 -- Fix for vertical editing
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
 

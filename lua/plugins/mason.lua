@@ -40,7 +40,7 @@ return {
         map("K", vim.lsp.buf.hover, "Documentation hover")
         map("<C-k>", vim.lsp.buf.signature_help, "Signature help")
 
-        map("gl", vim.diagnostic.open_float, "Line diagnostics")
+        map("gl", vim.diagnostic.setloclist, "Show diagnostics in location list")
         map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next diagnostic")
         map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev diagnostic")
 
