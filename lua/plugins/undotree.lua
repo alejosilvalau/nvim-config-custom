@@ -1,7 +1,7 @@
 return {
   "mbbill/undotree",
   keys = {
-    { "<leader>u", "<cmd>UndotreeToggle<cr>", mode = "n", desc = "UndoTree" },
+    { "<leader>u", "<cmd>UndotreeToggle<cr>", mode = "n", desc = "Toggle UndoTree" },
   },
   config = function()
     vim.opt.swapfile = false
