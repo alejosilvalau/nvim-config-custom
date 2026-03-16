@@ -11,7 +11,6 @@
   "copilot.lua": { "branch": "master", "commit": "8e2a91828210d6043744468f6d7027d256a41f42" },
   "dressing.nvim": { "branch": "master", "commit": "2d7c2db2507fa3c4956142ee607431ddb2828639" },
   "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
-  "grug-far.nvim": { "branch": "main", "commit": "dc4684e163971bb1f5bfb93fbd4bb3e892bf9b15" },
   "harpoon": { "branch": "harpoon2", "commit": "87b1a3506211538f460786c23f98ec63ad9af4e5" },
   "image.nvim": { "branch": "master", "commit": "da2be65c153ba15a14a342b05591652a6df70d58" },
   "img-clip.nvim": { "branch": "main", "commit": "b6ddfb97b5600d99afe3452d707444afda658aca" },
