@@ -21,6 +21,7 @@ return {
       { '<leader>r',  group = 'Refactor' },
       { '<leader>t',  group = 'Database' },
       { '<leader>i',  group = 'Images' },
+      { 'gr',         group = 'LSP Actions' },
     },
   },
   keys = {

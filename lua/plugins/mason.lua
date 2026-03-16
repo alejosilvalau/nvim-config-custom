@@ -31,10 +31,10 @@ return {
 
         -- Navigation
         map("gd", telescope.lsp_definitions, "Go to definition")
-        map("gr", telescope.lsp_references, "Go to references")
-        map("gi", telescope.lsp_implementations, "Go to implementations")
+        map("grr", telescope.lsp_references, "Go to references")
+        map("gri", telescope.lsp_implementations, "Go to implementations")
         map("gD", vim.lsp.buf.declaration, "Go to declaration")
-        map("gt", telescope.lsp_type_definitions, "Go to type definition")
+        map("grt", telescope.lsp_type_definitions, "Go to type definition")
 
         -- Documentation
         map("K", vim.lsp.buf.hover, "Documentation hover")
@@ -45,12 +45,12 @@ return {
         map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev diagnostic")
 
         -- Action
-        map("ga", vim.lsp.buf.code_action, "Code action")
-        map("gR", vim.lsp.buf.rename, "Rename symbol")
+        map("gra", vim.lsp.buf.code_action, "Code action")
+        map("grn", vim.lsp.buf.rename, "Rename symbol")
 
         -- Telescope LSP symbols
-        map("gS", telescope.lsp_dynamic_workspace_symbols, "Code workspace symbols")
-        map("gs", telescope.lsp_document_symbols, "Code document symbols")
+        map("go", telescope.lsp_dynamic_workspace_symbols, "Code workspace symbols")
+        map("gO", telescope.lsp_document_symbols, "Code document symbols")
       end
     })
 
