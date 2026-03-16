@@ -52,13 +52,14 @@ return {
         if not ok then return end
         if obsidian.get_client() == nil then return end
 
-        vim.keymap.set("n", "<leader>no", ":ObsidianTemplate note<cr> :lua vim.cmd([[1,/^\\S/s/^\\n\\{1,}//]])<cr>")
+        vim.keymap.set("n", "<leader>no", ":ObsidianTemplate note<cr> :lua vim.cmd([[1,/^\\S/s/^\\n\\{1,}//]])<cr>",
+          { desc = "Apply note template" })
 
-        vim.keymap.set("n", "<leader>nt", "<cmd>ObsidianTags<cr>", { desc = "Obsidian Tags" })
+        vim.keymap.set("n", "<leader>nt", "<cmd>ObsidianTags<cr>", { desc = "Search Tags" })
 
         vim.keymap.set("n", "<leader>ns", function()
           return require("obsidian").util.smart_action()
-        end, { buffer = true, expr = true, desc = "Obsidian smart action" })
+        end, { buffer = true, expr = true, desc = "Smart action" })
       end,
     })
   end,

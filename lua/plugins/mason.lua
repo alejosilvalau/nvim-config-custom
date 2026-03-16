@@ -30,27 +30,27 @@ return {
         end
 
         -- Navigation
-        map("gd", telescope.lsp_definitions, "Go to Definition")
-        map("gr", telescope.lsp_references, "Go to References")
-        map("gi", telescope.lsp_implementations, "Go to Implementations")
-        map("gD", vim.lsp.buf.declaration, "Go to Declaration")
-        map("gt", telescope.lsp_type_definitions, "Go to Type Definition")
+        map("gd", telescope.lsp_definitions, "Go to definition")
+        map("gr", telescope.lsp_references, "Go to deferences")
+        map("gi", telescope.lsp_implementations, "Go to implementations")
+        map("gD", vim.lsp.buf.declaration, "Go to declaration")
+        map("gt", telescope.lsp_type_definitions, "Go to type definition")
 
         -- Documentation
-        map("K", vim.lsp.buf.hover, "Documentation Hover")
-        map("<C-k>", vim.lsp.buf.signature_help, "Signature Help")
+        map("K", vim.lsp.buf.hover, "Documentation hover")
+        map("<C-k>", vim.lsp.buf.signature_help, "Signature help")
 
-        map("gl", vim.diagnostic.open_float, "Line Diagnostics")
-        map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next Diagnostic")
-        map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev Diagnostic")
+        map("gl", vim.diagnostic.open_float, "Line diagnostics")
+        map("]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, "Next diagnostic")
+        map("[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, "Prev diagnostic")
 
         -- Action
-        map("gra", vim.lsp.buf.code_action, "Code Action")
-        map("grn", vim.lsp.buf.rename, "Rename Symbol")
+        map("gra", vim.lsp.buf.code_action, "Code action")
+        map("grn", vim.lsp.buf.rename, "Rename symbol")
 
         -- Telescope LSP symbols
-        map("gS", telescope.lsp_dynamic_workspace_symbols, "Code Workspace Symbols")
-        map("gs", telescope.lsp_document_symbols, "Code Document Symbols")
+        map("gS", telescope.lsp_dynamic_workspace_symbols, "Code workspace symbols")
+        map("gs", telescope.lsp_document_symbols, "Code document symbols")
       end
     })
 

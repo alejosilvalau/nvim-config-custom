@@ -14,12 +14,12 @@ return {
     }
 
     dashboard.section.buttons.val = {
-      dashboard.button("e", "  New file", "<cmd>ene <BAR> startinsert<CR>"),
-      dashboard.button("f", "  Find file", "<cmd>Telescope find_files<CR>"),
-      dashboard.button("r", "  Recent files", "<cmd>Telescope oldfiles<CR>"),
-      dashboard.button("g", "  Live grep", "<cmd>Telescope live_grep<CR>"),
-      dashboard.button("c", "  Config", "<cmd>e $MYVIMRC<CR>"),
-      dashboard.button("q", "  Quit", "<cmd>qa<CR>"),
+      dashboard.button("e", "New file", "<cmd>ene <BAR> startinsert<CR>"),
+      dashboard.button("f", "Find file", "<cmd>Telescope find_files<CR>"),
+      dashboard.button("r", "Recent files", "<cmd>Telescope oldfiles<CR>"),
+      dashboard.button("g", "Live grep", "<cmd>Telescope live_grep<CR>"),
+      dashboard.button("c", "Config", "<cmd>e $MYVIMRC<CR>"),
+      dashboard.button("q", "Quit", "<cmd>qa<CR>"),
     }
 
     local plugins = require("lazy").stats().count

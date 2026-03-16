@@ -17,7 +17,7 @@ vim.keymap.set("n", "<leader>e", function()
   end
 
   vim.cmd.Ex()
-end, { desc = "Open file explorer" })
+end, { desc = "File explorer" })
 
 -- Window resizing (enter resize mode with <leader>wr, then use +/-/</>  to resize, q or <Esc> to exit)
 local function resize_mode()
@@ -43,7 +43,7 @@ local function resize_mode()
   print("Resize mode exited")
 end
 
-vim.keymap.set("n", "<leader>wr", resize_mode, { desc = "Enter resize mode" })
+vim.keymap.set("n", "<leader>w", resize_mode, { desc = "Resize mode" })
 
 -- Move selected code
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
@@ -61,12 +61,10 @@ vim.keymap.set("n", "<leader><leader>", ":nohlsearch<CR>", { desc = "Clear searc
 -- Fix for vertical editing
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
 
-vim.keymap.set("n", "<leader>f", vim.lsp.buf.format, { desc = "Format buffer with LSP" })
+vim.keymap.set("n", "<leader>re", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+  { desc = "Replace word" })
 
-vim.keymap.set("n", "<leader>r", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-  { desc = "Search and replace word under cursor" })
-
-vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make executable" })
 
 -- Toggle markdown checkboxes
 vim.keymap.set("n", "<leader>nc", function()
