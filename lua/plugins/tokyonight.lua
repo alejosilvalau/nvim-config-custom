@@ -45,6 +45,10 @@ return
       hl.WinSeparator = { fg = c.bg_dark }
       hl.NormalFloat = { bg = c.bg_dark }
       hl.FloatBorder = { fg = c.border_highlight, bg = c.bg_dark }
+
+      -- Which-key
+      hl.WhichKeyNormal = { bg = c.bg_dark }
+      hl.WhichKeyBorder = { fg = c.border_highlight, bg = c.bg_dark }
     end,
   },
   init = function()
