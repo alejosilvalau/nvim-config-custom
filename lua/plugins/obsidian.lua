@@ -10,9 +10,17 @@ local vaults = {
 }
 
 local events = {}
-for _, path in pairs(vaults) do
-  table.insert(events, "BufReadPre " .. path .. "/*.md")
-  table.insert(events, "BufNewFile " .. path .. "/*.md")
+local workspaces = {}
+for name, path in pairs(vaults) do
+  if vim.fn.isdirectory(path) == 1 then
+    table.insert(events, "BufReadPre " .. path .. "/*.md")
+    table.insert(events, "BufNewFile " .. path .. "/*.md")
+    table.insert(workspaces, { name = name, path = path })
+  end
+end
+
+if #workspaces == 0 then
+  return {}
 end
 
 return {
@@ -24,13 +32,7 @@ return {
     "nvim-lua/plenary.nvim",
   },
   opts = {
-    workspaces = {
-      { name = "alnix404",   path = vaults.alnix404 },
-      { name = "alnixdev",   path = vaults.alnixdev },
-      { name = "university", path = vaults.university },
-      { name = "personal",   path = vaults.personal },
-      { name = "desktop",    path = vaults.desktop },
-    },
+    workspaces = workspaces,
     ui = {
       enable = false
     },

@@ -15,6 +15,7 @@ return {
       { '<leader>b',  group = 'Buffers' },
       { '<leader>d',  group = 'Debug' },
       { '<leader>f',  group = 'Find' },
+      { '<leader>j',  group = 'Java' },
       { '<leader>jt', group = 'Java tests' },
       { '<leader>jx', group = 'Java refactor' },
       { '<leader>n',  group = 'Notes' },
