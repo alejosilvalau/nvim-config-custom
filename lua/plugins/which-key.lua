@@ -17,7 +17,7 @@ return {
       { '<leader>f',  group = 'Find' },
       { '<leader>j',  group = 'Java' },
       { '<leader>jt', group = 'Java tests' },
-      { '<leader>jx', group = 'Java refactor' },
+      { '<leader>je', group = 'Java extract' },
       { '<leader>n',  group = 'Notes' },
       { '<leader>r',  group = 'Refactor' },
       { '<leader>t',  group = 'Database' },
