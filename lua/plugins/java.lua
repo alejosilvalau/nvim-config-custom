@@ -42,11 +42,7 @@ return {
     'JavaHello/spring-boot.nvim',
   },
   config = function()
-    require('java').setup({
-      spring_boot_tools = {
-        enable = true,
-      },
-    })
+    require('java').setup({})
     vim.lsp.config('jdtls', {
       root_dir = vim.fs.root(0, { ".project", "pom.xml", "gradle.build" }),
     })
