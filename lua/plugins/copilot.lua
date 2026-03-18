@@ -10,6 +10,25 @@ return {
       debounce = 0,
     },
     panel = { enabled = false },
+    filetypes = {
+      markdown = true,
+      yaml = true,
+      help = true,
+      gitcommit = true,
+      gitrebase = true,
+      hgcommit = true,
+      svn = true,
+      cvs = true,
+      ["."] = true,
+
+    },
+    server_opts_overrides = {
+      settings = {
+        advanced = {
+          model = "gpt-5-mini",
+        }
+      }
+    }
   },
   keys = {
     {
