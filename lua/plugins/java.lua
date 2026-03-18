@@ -1,3 +1,31 @@
+local function run_modular()
+  local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+  if not client then
+    vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+    return
+  end
+  local root = client.config.root_dir
+  local java = vim.fn.glob(vim.fn.stdpath('data') .. '/nvim-java/packages/openjdk/*/jdk-*/bin/java')
+
+  client.request('workspace/executeCommand', {
+    command = 'vscode.java.resolveMainClass',
+    arguments = { root },
+  }, function(err, result) ---@diagnostic disable-line: param-type-mismatch
+    if err or not result or #result == 0 then
+      vim.notify('No main class found', vim.log.levels.ERROR)
+      return
+    end
+    local choices = {}
+    for _, item in ipairs(result) do
+      table.insert(choices, item.mainClass)
+    end
+    vim.ui.select(choices, { prompt = 'Select main class:' }, function(choice)
+      if not choice then return end
+      vim.cmd('split | terminal ' .. java .. ' --module-path ' .. root .. '/bin -m ' .. choice)
+    end)
+  end)
+end
+
 return {
   'nvim-java/nvim-java',
   ft = 'java',
@@ -12,7 +40,7 @@ return {
       },
     })
     vim.lsp.config('jdtls', {
-      root_dir = vim.fs.root(0, { ".project", "pom.xml", "gradle.build", ".git" }),
+      root_dir = vim.fs.root(0, { ".project", "pom.xml", "gradle.build" }),
     })
     vim.lsp.enable('jdtls')
   end,
@@ -20,6 +48,7 @@ return {
     -- Runner
     { '<leader>jb',  function() require('java').build.build_workspace() end,       ft = 'java', desc = 'Build workspace' },
     { '<leader>jr',  function() require('java').runner.built_in.run_app({}) end,   ft = 'java', desc = 'Run app' },
+    { '<leader>jM',  run_modular,                                                  ft = 'java', desc = 'Run modular app' },
     { '<leader>js',  function() require('java').runner.built_in.stop_app() end,    ft = 'java', desc = 'Stop app' },
     { '<leader>jl',  function() require('java').runner.built_in.toggle_logs() end, ft = 'java', desc = 'Toggle logs' },
 
