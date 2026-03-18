@@ -36,6 +36,9 @@ return {
     ui = {
       enable = false
     },
+    follow_url_func = function(url)
+      vim.fn.jobstart({ "google-chrome", url })
+    end,
     note_frontmatter_func = function(note)
       return {
         date    = os.date("%Y-%m-%d"),
