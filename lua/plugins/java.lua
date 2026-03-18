@@ -90,10 +90,10 @@ return {
     { '<leader>jec', function() require('java').refactor.extract_constant() end,   ft = 'java', desc = 'Extract constant' },
 
     -- Misc
-    { '<leader>ji',  function() require('java').import.organize_imports() end,     ft = 'java', desc = 'Organize imports' },
+    { '<leader>jo',  function() require('java').import.organize_imports() end,     ft = 'java', desc = 'Organize imports' },
     { '<leader>jc',  function() require('java').clean.workspace() end,             ft = 'java', desc = 'Clean workspace' },
     { '<leader>jp',  function() require('java').profile.ui() end,                  ft = 'java', desc = 'Profiles' },
-    { '<leader>ji',  function() require('java').project.import_settings() end,     ft = 'java', desc = 'Import Settings' },
+    { '<leader>ji',  function() require('java').project.import_settings() end,     ft = 'java', desc = 'Import settings' },
     { '<leader>jR',  function() require('java').settings.change_runtime() end,     ft = 'java', desc = 'Change JDK' },
   },
 }
