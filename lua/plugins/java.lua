@@ -6,7 +6,6 @@ local function run_modular()
   end
   local root = client.config.root_dir
   local java = vim.fn.glob(vim.fn.stdpath('data') .. '/nvim-java/packages/openjdk/*/jdk-*/bin/java')
-
   client.request('workspace/executeCommand', {
     command = 'vscode.java.resolveMainClass',
     arguments = { root },
@@ -21,7 +20,7 @@ local function run_modular()
     end
     vim.ui.select(choices, { prompt = 'Select main class:' }, function(choice)
       if not choice then return end
-      vim.cmd('split | terminal ' .. java .. ' --module-path ' .. root .. '/bin -m ' .. choice)
+      vim.cmd('botright split | terminal ' .. java .. ' --module-path ' .. root .. '/bin -m ' .. choice)
     end)
   end)
 end
@@ -43,30 +42,35 @@ return {
       root_dir = vim.fs.root(0, { ".project", "pom.xml", "gradle.build" }),
     })
     vim.lsp.enable('jdtls')
+
+    vim.api.nvim_create_autocmd('LspAttach', {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client.name == 'jdtls' then
+          vim.notify('JDTLS ready', vim.log.levels.INFO)
+        end
+      end,
+    })
   end,
   keys = {
     -- Runner
     { '<leader>jb',  function() require('java').build.build_workspace() end,       ft = 'java', desc = 'Build workspace' },
     { '<leader>jr',  function() require('java').runner.built_in.run_app({}) end,   ft = 'java', desc = 'Run app' },
-    { '<leader>jM',  run_modular,                                                  ft = 'java', desc = 'Run modular app' },
+    { '<leader>jm',  run_modular,                                                  ft = 'java', desc = 'Run modular app' },
     { '<leader>js',  function() require('java').runner.built_in.stop_app() end,    ft = 'java', desc = 'Stop app' },
     { '<leader>jl',  function() require('java').runner.built_in.toggle_logs() end, ft = 'java', desc = 'Toggle logs' },
-
     -- Tests
     { '<leader>jtc', function() require('java').test.run_current_class() end,      ft = 'java', desc = 'Test class' },
     { '<leader>jtm', function() require('java').test.run_current_method() end,     ft = 'java', desc = 'Test method' },
     { '<leader>jta', function() require('java').test.run_all_tests() end,          ft = 'java', desc = 'Test all' },
     { '<leader>jtr', function() require('java').test.view_last_report() end,       ft = 'java', desc = 'Test report' },
-
     -- Debug via DAP-UI
     { '<leader>jtD', function() require('java').test.debug_current_class() end,    ft = 'java', desc = 'Debug class' },
     { '<leader>jtd', function() require('java').test.debug_current_method() end,   ft = 'java', desc = 'Debug method' },
-
     -- Refactor
     { '<leader>jxv', function() require('java').refactor.extract_variable() end,   ft = 'java', desc = 'Extract variable' },
     { '<leader>jxm', function() require('java').refactor.extract_method() end,     ft = 'java', desc = 'Extract method' },
     { '<leader>jxc', function() require('java').refactor.extract_constant() end,   ft = 'java', desc = 'Extract constant' },
-
     -- Misc
     { '<leader>jp',  function() require('java').profile.ui() end,                  ft = 'java', desc = 'Profiles' },
     { '<leader>ji',  function() require('java').project.import_settings() end,     ft = 'java', desc = 'Import Settings' },
