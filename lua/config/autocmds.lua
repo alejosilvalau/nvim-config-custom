@@ -58,3 +58,24 @@ vim.api.nvim_create_autocmd("BufWritePost", {
     vim.cmd("mkspell! " .. vim.fn.expand("<afile>"))
   end,
 })
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*.md",
+  callback = function()
+    vim.keymap.set("n", "<leader>nc", function()
+      local line = vim.api.nvim_get_current_line()
+      if line:match("%- %[x%]") then
+        vim.api.nvim_set_current_line((line:gsub("%- %[x%]", "- [ ]")))
+      elseif line:match("%- %[ %]") then
+        vim.api.nvim_set_current_line((line:gsub("%- %[ %]", "- [x]")))
+      else
+        local trimmed = line:match("^%s*%- (.+)")
+        if trimmed then
+          vim.api.nvim_set_current_line((line:gsub("^(%s*%- )", "%1[ ] ")))
+        else
+          vim.api.nvim_set_current_line((line:gsub("^(%s*)(.*)", "%1- [ ] %2")))
+        end
+      end
+    end, { buffer = true, desc = "Toggle checkbox" })
+  end,
+})
