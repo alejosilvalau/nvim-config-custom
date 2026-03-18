@@ -3,6 +3,7 @@ return {
   cmd = "Copilot",
   event = "InsertEnter",
   opts = {
+    copilot_model = "gpt-41-copilot",
     suggestion = {
       enabled = true,
       auto_trigger = true,
@@ -22,13 +23,6 @@ return {
       ["."] = true,
 
     },
-    server_opts_overrides = {
-      settings = {
-        advanced = {
-          model = "gpt-5-mini",
-        }
-      }
-    }
   },
   keys = {
     {
