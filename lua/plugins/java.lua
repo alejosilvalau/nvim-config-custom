@@ -44,7 +44,17 @@ return {
   config = function()
     require('java').setup({})
     vim.lsp.config('jdtls', {
-      root_dir = vim.fs.root(0, { ".project", "pom.xml", "gradle.build" }),
+      root_dir = vim.fs.root(0, {
+        '.project',
+        '.classpath',
+        'pom.xml',
+        'build.gradle',
+        'build.gradle.kts',
+        'settings.gradle',
+        'settings.gradle.kts',
+        'mvnw',
+        'gradlew',
+      }),
     })
     vim.lsp.enable('jdtls')
 
