@@ -45,8 +45,17 @@ vim.cmd('hi SpellCap gui=undercurl guisp=Blue')
 
 vim.diagnostic.config({
   virtual_text = {
-    prefix = '●',
     spacing = 4,
+    prefix = function(diagnostic)
+      if diagnostic.severity == vim.diagnostic.severity.ERROR then
+        return '󰅚'
+      elseif diagnostic.severity == vim.diagnostic.severity.WARN then
+        return '󰀪'
+      elseif diagnostic.severity == vim.diagnostic.severity.INFO then
+        return '󰋽'
+      else
+        return '󰌶'
+      end
+    end,
   },
-  virtual_lines = false,
 })
