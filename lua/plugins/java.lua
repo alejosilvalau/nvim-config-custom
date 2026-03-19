@@ -34,6 +34,24 @@ local function smart_run()
   end
 end
 
+local function patch_refactor()
+  local action_path = vim.fn.stdpath('data') .. '/nvim-java/lazy/nvim-java/lua/java-refactor/action.lua'
+  local ok, content = pcall(vim.fn.readfile, action_path)
+  if ok then
+    local patched = false
+    for i, line in ipairs(content) do
+      if line:find('for _, rename in ipairs%(params%)') then
+        content[i] = line:gsub('ipairs%(params%)', 'ipairs(params or {})')
+        patched = true
+        break
+      end
+    end
+    if patched then
+      vim.fn.writefile(content, action_path)
+    end
+  end
+end
+
 return {
   'nvim-java/nvim-java',
   ft = 'java',
@@ -42,6 +60,8 @@ return {
     'JavaHello/spring-boot.nvim',
   },
   config = function()
+    patch_refactor()
+
     require('java').setup({})
     vim.lsp.config('jdtls', {
       settings = {
