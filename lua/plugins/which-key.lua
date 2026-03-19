@@ -19,6 +19,7 @@ return {
       { '<leader>jt', group = 'Java tests',   mode = { 'n', 'v' } },
       { '<leader>je', group = 'Java extract', mode = { 'n', 'v' } },
       { '<leader>jS', group = 'Java source',  mode = { 'n', 'v' } },
+      { '<leader>jL', group = 'Java library', mode = { 'n', 'v' } },
       { '<leader>n',  group = 'Notes',        mode = { 'n', 'v' } },
       { '<leader>r',  group = 'Refactor',     mode = { 'n', 'v' } },
       { '<leader>t',  group = 'Database',     mode = { 'n', 'v' } },

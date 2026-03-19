@@ -277,6 +277,76 @@ return {
       ft = 'java',
       desc = 'Remove from source path'
     },
+    {
+      '<leader>jSl',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.listSourcePaths',
+        }, function(err, result)
+          if err or not result then return end
+          local lines = {}
+          for _, item in ipairs(result) do
+            table.insert(lines, item.path or vim.inspect(item))
+          end
+          vim.notify(table.concat(lines, '\n'), vim.log.levels.INFO)
+        end, 0)
+      end,
+      ft = 'java',
+      desc = 'List source paths'
+    },
+    {
+      '<leader>jLa',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        local jar = vim.fn.input('Jar path: ', '', 'file')
+        if jar == '' then return end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.addLibraries',
+          arguments = { vim.uri_from_fname(jar) },
+        }, function(err)
+          if err then
+            vim.notify('Failed to add library', vim.log.levels.ERROR)
+            return
+          end
+          vim.notify('Library added: ' .. jar, vim.log.levels.INFO)
+        end, 0)
+      end,
+      ft = 'java',
+      desc = 'Add library (jar)'
+    },
+    {
+      '<leader>jLr',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        local jar = vim.fn.input('Jar path: ', '', 'file')
+        if jar == '' then return end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.removeLibraries',
+          arguments = { vim.uri_from_fname(jar) },
+        }, function(err)
+          if err then
+            vim.notify('Failed to remove library', vim.log.levels.ERROR)
+            return
+          end
+          vim.notify('Library removed: ' .. jar, vim.log.levels.INFO)
+        end, 0)
+      end,
+      ft = 'java',
+      desc = 'Remove library (jar)'
+    },
     { '<leader>jc', function() require('java').build.clean_workspace() end,   ft = 'java', desc = 'Clean workspace' },
     { '<leader>jp', function() require('java').profile.ui() end,              ft = 'java', desc = 'Profiles' },
     { '<leader>jR', function() require('java').settings.change_runtime() end, ft = 'java', desc = 'Change JDK' },
