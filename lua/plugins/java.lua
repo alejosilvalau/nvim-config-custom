@@ -44,6 +44,19 @@ return {
   config = function()
     require('java').setup({})
     vim.lsp.config('jdtls', {
+      settings = {
+        java = {
+          configuration = {
+            runtimes = {
+              {
+                name = "JavaSE-25",
+                path = vim.fn.expand('$HOME') .. '/.local/share/nvim/nvim-java/packages/openjdk/25/jdk-25.0.2',
+                default = true,
+              }
+            }
+          }
+        }
+      },
       root_dir = vim.fs.root(0, {
         '.project',
         '.classpath',
@@ -77,7 +90,6 @@ return {
     -- Tests
     { '<leader>jtc', function() require('java').test.run_current_class() end,      ft = 'java', desc = 'Test class' },
     { '<leader>jtm', function() require('java').test.run_current_method() end,     ft = 'java', desc = 'Test method' },
-    { '<leader>jta', function() require('java').test.run_all_tests() end,          ft = 'java', desc = 'Test all' },
     { '<leader>jtr', function() require('java').test.view_last_report() end,       ft = 'java', desc = 'Test report' },
 
     -- Debug tests via DAP-UI
@@ -85,15 +97,28 @@ return {
     { '<leader>jtd', function() require('java').test.debug_current_method() end,   ft = 'java', desc = 'Debug method' },
 
     -- Refactor
-    { '<leader>jev', function() require('java').refactor.extract_variable() end,   ft = 'java', desc = 'Extract variable' },
-    { '<leader>jem', function() require('java').refactor.extract_method() end,     ft = 'java', desc = 'Extract method' },
-    { '<leader>jec', function() require('java').refactor.extract_constant() end,   ft = 'java', desc = 'Extract constant' },
+    -- { '<leader>jev', function() require('java').refactor.extract_variable() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract variable' },
+    -- { '<leader>jem', function() require('java').refactor.extract_method() end,     mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract method' },
+    -- { '<leader>jec', function() require('java').refactor.extract_constant() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract constant' },
 
     -- Misc
-    { '<leader>jo',  function() require('java').import.organize_imports() end,     ft = 'java', desc = 'Organize imports' },
-    { '<leader>jc',  function() require('java').clean.workspace() end,             ft = 'java', desc = 'Clean workspace' },
-    { '<leader>jp',  function() require('java').profile.ui() end,                  ft = 'java', desc = 'Profiles' },
-    { '<leader>ji',  function() require('java').project.import_settings() end,     ft = 'java', desc = 'Import settings' },
-    { '<leader>jR',  function() require('java').settings.change_runtime() end,     ft = 'java', desc = 'Change JDK' },
+    {
+      '<leader>jo',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        client.request('workspace/executeCommand', {
+          command = 'java.edit.organizeImports',
+        }, nil, 0)
+      end,
+      ft = 'java',
+      desc = 'Organize imports'
+    },
+    { '<leader>jc', function() require('java').build.clean_workspace() end,   ft = 'java', desc = 'Clean workspace' },
+    { '<leader>jp', function() require('java').profile.ui() end,              ft = 'java', desc = 'Profiles' },
+    { '<leader>jR', function() require('java').settings.change_runtime() end, ft = 'java', desc = 'Change JDK' },
   },
 }
