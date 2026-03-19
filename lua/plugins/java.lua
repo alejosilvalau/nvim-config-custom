@@ -52,6 +52,46 @@ local function patch_refactor()
   end
 end
 
+local function patch_test()
+  local test_api_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-test/api.lua'
+  local ok2, content2 = pcall(vim.fn.readfile, test_api_path)
+  if ok2 then
+    local changed = false
+    for i, line in ipairs(content2) do
+      -- Fix #nil guards
+      local new_line = line:gsub('if #(%w+) < 1 then', 'if not %1 or #%1 < 1 then')
+      -- Fix ipairs(nil) in get_test_methods
+      new_line = new_line:gsub('for (.-) in ipairs%(classes%) do', 'for %1 in ipairs(classes or {}) do')
+      if new_line ~= line then
+        content2[i] = new_line
+        changed = true
+      end
+    end
+    if changed then
+      vim.fn.writefile(content2, test_api_path)
+    end
+  end
+end
+
+local function patch_report()
+  local junit_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-test/reports/junit.lua'
+  local ok3, content3 = pcall(vim.fn.readfile, junit_path)
+  if ok3 then
+    local changed = false
+    for i, line in ipairs(content3) do
+      if line:find('return self.result_parser:get_test_details%(%)')
+          and not content3[i - 1]:find('if not self.result_parser') then
+        table.insert(content3, i, '\tif not self.result_parser then return {} end')
+        changed = true
+        break
+      end
+    end
+    if changed then
+      vim.fn.writefile(content3, junit_path)
+    end
+  end
+end
+
 return {
   'nvim-java/nvim-java',
   ft = 'java',
@@ -61,6 +101,8 @@ return {
   },
   config = function()
     patch_refactor()
+    patch_test()
+    patch_report()
 
     require('java').setup({})
     vim.lsp.config('jdtls', {
