@@ -142,6 +142,17 @@ return {
         end
       end,
     })
+
+    vim.api.nvim_create_autocmd('BufWritePost', {
+      pattern = '*.java',
+      callback = function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then return end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.refresh',
+        }, function() end, 0)
+      end,
+    })
   end,
   keys = {
     -- Runner
@@ -175,10 +186,96 @@ return {
         end
         client.request('workspace/executeCommand', {
           command = 'java.edit.organizeImports',
-        }, nil, 0)
+        }, function() end, 0)
       end,
       ft = 'java',
       desc = 'Organize imports'
+    },
+    {
+      '<leader>jD',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.refreshDiagnostics',
+        }, function() end, 0)
+      end,
+      ft = 'java',
+      desc = 'Refresh diagnostics'
+    },
+    {
+      '<leader>jx',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        client.request('workspace/executeCommand', {
+          command = 'java.decompile',
+          arguments = { vim.uri_from_bufnr(0) },
+        }, function(err, result)
+          if err or not result then
+            vim.notify('Decompile failed', vim.log.levels.ERROR)
+            return
+          end
+          local buf = vim.api.nvim_create_buf(false, true)
+          vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(result, '\n'))
+          vim.bo[buf].filetype = 'java'
+          vim.cmd('botright split')
+          vim.api.nvim_win_set_buf(0, buf)
+          vim.notify('Decompiled class', vim.log.levels.INFO)
+        end, 0)
+      end,
+      ft = 'java',
+      desc = 'Decompile class'
+    },
+    {
+      '<leader>jSa',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.addToSourcePath',
+          arguments = { vim.uri_from_fname(vim.fn.expand('%:p:h')) },
+        }, function(err)
+          if err then
+            vim.notify('Failed to add source path', vim.log.levels.ERROR)
+            return
+          end
+          vim.notify('Added to source path', vim.log.levels.INFO)
+        end, 0)
+      end,
+      ft = 'java',
+      desc = 'Add to source path'
+    },
+    {
+      '<leader>jSr',
+      function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if not client then
+          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+          return
+        end
+        client.request('workspace/executeCommand', {
+          command = 'java.project.removeFromSourcePath',
+          arguments = { vim.uri_from_fname(vim.fn.expand('%:p:h')) },
+        }, function(err)
+          if err then
+            vim.notify('Failed to remove source path', vim.log.levels.ERROR)
+            return
+          end
+          vim.notify('Removed from source path', vim.log.levels.INFO)
+        end, 0)
+      end,
+      ft = 'java',
+      desc = 'Remove from source path'
     },
     { '<leader>jc', function() require('java').build.clean_workspace() end,   ft = 'java', desc = 'Clean workspace' },
     { '<leader>jp', function() require('java').profile.ui() end,              ft = 'java', desc = 'Profiles' },
