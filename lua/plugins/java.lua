@@ -82,24 +82,24 @@ return {
   end,
   keys = {
     -- Runner
-    { '<leader>jb',  function() require('java').build.build_workspace() end,       ft = 'java', desc = 'Build workspace' },
-    { '<leader>jr',  smart_run,                                                    ft = 'java', desc = 'Run app' },
-    { '<leader>js',  function() require('java').runner.built_in.stop_app() end,    ft = 'java', desc = 'Stop app' },
-    { '<leader>jl',  function() require('java').runner.built_in.toggle_logs() end, ft = 'java', desc = 'Toggle logs' },
+    { '<leader>jb',  function() require('java').build.build_workspace() end,       ft = 'java',         desc = 'Build workspace' },
+    { '<leader>jr',  smart_run,                                                    ft = 'java',         desc = 'Run app' },
+    { '<leader>js',  function() require('java').runner.built_in.stop_app() end,    ft = 'java',         desc = 'Stop app' },
+    { '<leader>jl',  function() require('java').runner.built_in.toggle_logs() end, ft = 'java',         desc = 'Toggle logs' },
 
     -- Tests
-    { '<leader>jtc', function() require('java').test.run_current_class() end,      ft = 'java', desc = 'Test class' },
-    { '<leader>jtm', function() require('java').test.run_current_method() end,     ft = 'java', desc = 'Test method' },
-    { '<leader>jtr', function() require('java').test.view_last_report() end,       ft = 'java', desc = 'Test report' },
+    { '<leader>jtc', function() require('java').test.run_current_class() end,      ft = 'java',         desc = 'Test class' },
+    { '<leader>jtm', function() require('java').test.run_current_method() end,     ft = 'java',         desc = 'Test method' },
+    { '<leader>jtr', function() require('java').test.view_last_report() end,       ft = 'java',         desc = 'Test report' },
 
     -- Debug tests via DAP-UI
-    { '<leader>jtD', function() require('java').test.debug_current_class() end,    ft = 'java', desc = 'Debug class' },
-    { '<leader>jtd', function() require('java').test.debug_current_method() end,   ft = 'java', desc = 'Debug method' },
+    { '<leader>jtD', function() require('java').test.debug_current_class() end,    ft = 'java',         desc = 'Debug class' },
+    { '<leader>jtd', function() require('java').test.debug_current_method() end,   ft = 'java',         desc = 'Debug method' },
 
     -- Refactor
-    -- { '<leader>jev', function() require('java').refactor.extract_variable() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract variable' },
-    -- { '<leader>jem', function() require('java').refactor.extract_method() end,     mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract method' },
-    -- { '<leader>jec', function() require('java').refactor.extract_constant() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract constant' },
+    { '<leader>jev', function() require('java').refactor.extract_variable() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract variable' },
+    { '<leader>jem', function() require('java').refactor.extract_method() end,     mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract method' },
+    { '<leader>jec', function() require('java').refactor.extract_constant() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract constant' },
 
     -- Misc
     {
