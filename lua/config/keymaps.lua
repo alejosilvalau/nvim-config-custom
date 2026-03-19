@@ -75,7 +75,9 @@ vim.keymap.set("n", "<M-Up>", "<cmd>lprev<CR>", { desc = "Previous location item
 -- Fix for vertical editing
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
 
-vim.keymap.set("n", "<leader>re", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
+vim.keymap.set({ "n" }, "<leader>rw", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
   { desc = "Replace word" })
+vim.keymap.set({ "v" }, "<leader>rs", [[y:%s/<C-r>"/<C-r>"/gI<Left><Left><Left>]],
+  { desc = "Replace selection" })
 
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make executable" })

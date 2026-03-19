@@ -66,6 +66,9 @@ return {
           completion = {
             workspaceWord = false,
           },
+          diagnostics = {
+            disable = { 'param-type-mismatch' }
+          }
         }
       }
     })

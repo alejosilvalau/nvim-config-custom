@@ -11,10 +11,10 @@ local function smart_run()
   if module_info ~= '' then
     -- Modular project
     local java = vim.fn.glob(vim.fn.stdpath('data') .. '/nvim-java/packages/openjdk/*/jdk-*/bin/java')
-    client.request('workspace/executeCommand', { ---@diagnostic disable-line: param-type-mismatch
+    client.request('workspace/executeCommand', {
       command = 'vscode.java.resolveMainClass',
       arguments = { root },
-    }, function(err, result) ---@diagnostic disable-line: param-type-mismatch
+    }, function(err, result)
       if err or not result or #result == 0 then
         vim.notify('No main class found', vim.log.levels.ERROR)
         return
@@ -144,7 +144,7 @@ return {
     })
 
     vim.api.nvim_create_autocmd('BufWritePost', {
-      pattern = '*.java',
+      pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml' },
       callback = function()
         local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
         if not client then return end
