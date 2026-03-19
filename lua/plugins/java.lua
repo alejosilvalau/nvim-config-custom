@@ -35,7 +35,7 @@ local function smart_run()
 end
 
 local function patch_refactor()
-  local action_path = vim.fn.stdpath('data') .. '/nvim-java/lazy/nvim-java/lua/java-refactor/action.lua'
+  local action_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/action.lua'
   local ok, content = pcall(vim.fn.readfile, action_path)
   if ok then
     local patched = false
