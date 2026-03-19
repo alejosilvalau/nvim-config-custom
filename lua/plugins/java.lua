@@ -94,6 +94,7 @@ end
 
 return {
   'nvim-java/nvim-java',
+  commit = '602a5f7',
   ft = 'java',
   dependencies = {
     'neovim/nvim-lspconfig',
