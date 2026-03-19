@@ -1,39 +1,3 @@
-local function smart_run()
-  local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
-  if not client then
-    vim.notify('No JDTLS client found', vim.log.levels.ERROR)
-    return
-  end
-
-  local root = client.config.root_dir
-  local module_info = vim.fn.glob(root .. '/src/**/module-info.java')
-
-  if module_info ~= '' then
-    -- Modular project
-    local java = vim.fn.glob(vim.fn.stdpath('data') .. '/nvim-java/packages/openjdk/*/jdk-*/bin/java')
-    client.request('workspace/executeCommand', {
-      command = 'vscode.java.resolveMainClass',
-      arguments = { root },
-    }, function(err, result)
-      if err or not result or #result == 0 then
-        vim.notify('No main class found', vim.log.levels.ERROR)
-        return
-      end
-      local choices = {}
-      for _, item in ipairs(result) do
-        table.insert(choices, item.mainClass)
-      end
-      vim.ui.select(choices, { prompt = 'Select main class:' }, function(choice)
-        if not choice then return end
-        vim.cmd('botright split | terminal ' .. java .. ' --module-path ' .. root .. '/bin -m ' .. choice)
-      end)
-    end)
-  else
-    -- Non-modular project
-    require('java').runner.built_in.run_app({})
-  end
-end
-
 local function patch_refactor()
   local action_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/action.lua'
   local ok, content = pcall(vim.fn.readfile, action_path)
@@ -192,7 +156,7 @@ return {
   keys = {
     -- Runner
     { '<leader>jb',  function() require('java').build.build_workspace() end,       ft = 'java',         desc = 'Build workspace' },
-    { '<leader>jr',  smart_run,                                                    ft = 'java',         desc = 'Run app' },
+    { '<leader>jr',  function() require('java').runner.built_in.run_app({}) end,   ft = 'java',         desc = 'Run app' },
     { '<leader>js',  function() require('java').runner.built_in.stop_app() end,    ft = 'java',         desc = 'Stop app' },
     { '<leader>jl',  function() require('java').runner.built_in.toggle_logs() end, ft = 'java',         desc = 'Toggle logs' },
 
