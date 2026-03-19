@@ -42,3 +42,11 @@ vim.opt.spelllang = { 'en', 'es' }
 
 vim.cmd('hi SpellBad gui=undercurl guisp=Red')
 vim.cmd('hi SpellCap gui=undercurl guisp=Blue')
+
+vim.diagnostic.config({
+  virtual_text = {
+    prefix = '●',
+    spacing = 4,
+  },
+  virtual_lines = false,
+})

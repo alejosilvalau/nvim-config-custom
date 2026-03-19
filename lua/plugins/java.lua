@@ -92,6 +92,40 @@ local function patch_report()
   end
 end
 
+local function patch_imports()
+  local action_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/action.lua'
+  local ok, content = pcall(vim.fn.readfile, action_path)
+  if not ok then return end
+  local changed = false
+  for i, line in ipairs(content) do
+    if line:find('for _, selection in ipairs%(selections%)') and not line:find('or {}') then
+      content[i] = line:gsub('ipairs%(selections%)', 'ipairs(selections or {})')
+      changed = true
+      break
+    end
+  end
+  if changed then
+    vim.fn.writefile(content, action_path)
+  end
+
+  local handler_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/client-command-handlers.lua'
+  local ok2, content2 = pcall(vim.fn.readfile, handler_path)
+  if not ok2 then return end
+  local changed2 = false
+  for i, line in ipairs(content2) do
+    if line:find('local selections = params%[2%]') then
+      if not content2[i + 1]:find('if not selections') then
+        table.insert(content2, i + 1, '\t\tif not selections or #selections == 0 then return {} end')
+        changed2 = true
+      end
+      break
+    end
+  end
+  if changed2 then
+    vim.fn.writefile(content2, handler_path)
+  end
+end
+
 return {
   'nvim-java/nvim-java',
   commit = '602a5f7',
@@ -104,6 +138,7 @@ return {
     patch_refactor()
     patch_test()
     patch_report()
+    patch_imports()
 
     require('java').setup({})
     vim.lsp.config('jdtls', {
