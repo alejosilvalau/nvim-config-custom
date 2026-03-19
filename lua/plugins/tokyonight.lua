@@ -49,6 +49,14 @@ return
       -- Which-key
       hl.WhichKeyNormal = { bg = c.bg_dark }
       hl.WhichKeyBorder = { fg = c.border_highlight, bg = c.bg_dark }
+
+      -- DBUI
+      hl.NotificationInfo = { fg = c.fg, bg = c.bg_dark }
+      hl.dbui_help = { fg = c.fg, bg = c.bg_dark }
+      hl.dbuiHeader = { fg = c.cyan, bg = "NONE", bold = true }
+      hl.dbui_tables = { fg = c.fg, bg = "NONE" }
+      hl.MsgArea = { fg = c.fg, bg = "NONE" }
+      hl.ModeMsg = { fg = c.fg_dark, bg = "NONE" }
     end,
   },
   init = function()
