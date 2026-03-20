@@ -9,6 +9,8 @@ return {
       sh = { "shfmt" },
       javascript = { "prettierd", "prettier", stop_after_first = true },
       typescript = { "prettierd", "prettier", stop_after_first = true },
+      sql = { "sql_formatter" },
+      mysql = { "sql_formatter" },
     },
     format_on_save = {
       timeout_ms = 500,

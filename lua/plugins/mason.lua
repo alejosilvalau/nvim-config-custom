@@ -12,6 +12,8 @@ return {
     { 'hrsh7th/cmp-path' },
     { 'saadparwaiz1/cmp_luasnip' },
     { 'hrsh7th/cmp-nvim-lua' },
+    { 'hrsh7th/cmp-nvim-lua' },
+    { 'kristijanhusak/vim-dadbod-completion' },
 
     -- Snippets
     { 'L3MON4D3/LuaSnip' },
@@ -73,11 +75,16 @@ return {
       }
     })
 
+    vim.lsp.config('sqlls', {
+      cmd = { "sql-language-server", "up", "--method", "stdio" },
+      filetypes = { "sql", "mysql" },
+    })
+
     require('mason').setup({})
     require('mason-lspconfig').setup({
       ensure_installed = {
         'ts_ls', 'lua_ls', 'tailwindcss', 'html',
-        'cssls', 'emmet_ls', 'bashls'
+        'cssls', 'emmet_ls', 'bashls', 'sqlls'
       },
     })
 
@@ -91,8 +98,9 @@ return {
 
     cmp.setup({
       sources = {
-        { name = 'lazydev', group_index = 0 },
-        { name = 'copilot', group_index = 2 },
+        { name = 'vim-dadbod-completion' },
+        { name = 'lazydev',              group_index = 0 },
+        { name = 'copilot',              group_index = 2 },
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
         { name = 'nvim_lua' },
