@@ -82,7 +82,6 @@ return {
         'lua_ls',
         'tailwindcss',
         'html',
-        'htmlhint',
         'cssls',
         'emmet_ls',
         'bashls',
