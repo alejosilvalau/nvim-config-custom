@@ -75,11 +75,6 @@ return {
       }
     })
 
-    vim.lsp.config('sqlls', {
-      cmd = { "sql-language-server", "up", "--method", "stdio" },
-      filetypes = { "sql", "mysql" },
-    })
-
     require('mason').setup({})
     require('mason-lspconfig').setup({
       ensure_installed = {
