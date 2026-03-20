@@ -78,8 +78,15 @@ return {
     require('mason').setup({})
     require('mason-lspconfig').setup({
       ensure_installed = {
-        'ts_ls', 'lua_ls', 'tailwindcss', 'html',
-        'cssls', 'emmet_ls', 'bashls', 'sqlls'
+        'ts_ls',
+        'lua_ls',
+        'tailwindcss',
+        'html',
+        'htmlhint',
+        'cssls',
+        'emmet_ls',
+        'bashls',
+        'sqlls'
       },
     })
 

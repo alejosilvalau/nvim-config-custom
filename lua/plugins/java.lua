@@ -133,23 +133,14 @@ return {
     })
     vim.lsp.enable('jdtls')
 
-    vim.api.nvim_create_autocmd('LspAttach', {
-      callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and client.name == 'jdtls' then
-          vim.notify('[JDTLS ready]', vim.log.levels.INFO)
-        end
-      end,
-    })
-
     vim.api.nvim_create_autocmd('BufWritePost', {
-      pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml' },
+      pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml', '.classpath', '.project' },
       callback = function()
+        -- Only restart if jdtls is actually running
         local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
-        if not client then return end
-        client.request('workspace/executeCommand', {
-          command = 'java.project.refresh',
-        }, function() end, 0)
+        if client then
+          vim.cmd('LspRestart jdtls')
+        end
       end,
     })
   end,
