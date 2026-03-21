@@ -1,3 +1,232 @@
+local function eclipse_run()
+  -- ── Resolve java binary ───────────────────────────────────────────────────
+  local function resolve_java()
+    local managed = vim.fn.glob(
+      vim.fn.stdpath('data') .. '/nvim-java/packages/openjdk/*/jdk-*/bin/java'
+    )
+    if managed ~= '' then return managed end
+
+    local java_home = vim.fn.getenv('JAVA_HOME')
+    if java_home and java_home ~= vim.NIL and java_home ~= '' then
+      local jh = java_home .. '/bin/java'
+      if vim.fn.filereadable(jh) == 1 then return jh end
+    end
+
+    local sys = vim.fn.exepath('java')
+    if sys ~= '' then return sys end
+
+    return nil
+  end
+
+  -- ── Parse .classpath ──────────────────────────────────────────────────────
+  local function parse_classpath(project_dir)
+    local path = project_dir .. '/.classpath'
+    if vim.fn.filereadable(path) == 0 then return nil end
+
+    local result  = { output = 'bin', jars = {} }
+    local content = table.concat(vim.fn.readfile(path), '\n')
+
+    for entry in content:gmatch('<classpathentry(.-)/>') do
+      local kind     = entry:match('kind="([^"]+)"')
+      local path_val = entry:match('path="([^"]+)"')
+      if not kind or not path_val then goto continue end
+
+      if kind == 'output' then
+        result.output = path_val
+      elseif kind == 'lib' then
+        local full = path_val:sub(1, 1) == '/'
+            and path_val
+            or project_dir .. '/' .. path_val
+        if vim.fn.filereadable(full) == 1 then
+          table.insert(result.jars, full)
+        else
+          vim.notify('Jar not found: ' .. full, vim.log.levels.WARN)
+        end
+      end
+
+      ::continue::
+    end
+
+    return result
+  end
+
+  -- ── Parse .launch file ────────────────────────────────────────────────────
+  local function parse_launch(launch_path)
+    local content = table.concat(vim.fn.readfile(launch_path), '\n')
+    return {
+      main_class   = content:match('MAIN_TYPE.-value="([^"]+)"'),
+      project      = content:match('PROJECT_ATTR.-value="([^"]+)"'),
+      jvm_args     = content:match('VM_ARGUMENTS.-value="([^"]+)"') or '',
+      program_args = content:match('PROGRAM_ARGUMENTS.-value="([^"]+)"') or '',
+    }
+  end
+
+  -- ── Find workspace root (dir containing .metadata/) ──────────────────────
+  local function find_workspace(start)
+    local dir = start
+    for _ = 1, 6 do
+      if vim.fn.isdirectory(dir .. '/.metadata') == 1 then
+        return dir
+      end
+      local parent = vim.fn.fnamemodify(dir, ':h')
+      if parent == dir then break end -- reached fs root
+      dir = parent
+    end
+    return nil
+  end
+
+  -- ── Find project dir by name inside workspace ─────────────────────────────
+  -- Handles: workspace/ProjectName and workspace/subdir/ProjectName
+  local function find_project_dir(workspace, project_name)
+    local direct = workspace .. '/' .. project_name
+    if vim.fn.isdirectory(direct) == 1 then return direct end
+
+    local nested = vim.fn.glob(workspace .. '/*/' .. project_name, false, true)
+    if #nested > 0 then return nested[1] end
+
+    return nil
+  end
+
+  -- ═════════════════════════════════════════════════════════════════════════
+  -- MAIN LOGIC
+  -- ═════════════════════════════════════════════════════════════════════════
+
+  local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+  if not client then
+    vim.notify('No JDTLS client found', vim.log.levels.ERROR)
+    return
+  end
+
+  local project_root = client.config.root_dir
+
+  -- ── Delegate Maven/Gradle to run_app ─────────────────────────────────────
+  local has_maven    = vim.fn.filereadable(project_root .. '/pom.xml') == 1
+  local has_gradle   = vim.fn.filereadable(project_root .. '/build.gradle') == 1
+      or vim.fn.filereadable(project_root .. '/build.gradle.kts') == 1
+
+  if has_maven or has_gradle then
+    require('java').runner.built_in.run_app({})
+    return
+  end
+  -- ── Eclipse path ──────────────────────────────────────────────────────────
+  local java = resolve_java()
+  if not java then
+    vim.notify('No java binary found', vim.log.levels.ERROR)
+    return
+  end
+
+  local workspace = find_workspace(project_root)
+  if not workspace then
+    vim.notify('Eclipse workspace not found (.metadata missing)', vim.log.levels.ERROR)
+    return
+  end
+
+  local launches_dir = workspace
+      .. '/.metadata/.plugins/org.eclipse.debug.core/.launches'
+
+  local launch_files = vim.fn.glob(launches_dir .. '/*.launch', false, true)
+  if #launch_files == 0 then
+    vim.notify('No .launch files found in workspace', vim.log.levels.ERROR)
+    return
+  end
+
+  -- ── Filter launches relevant to the current project ───────────────────────
+  -- project_root basename = project name Eclipse knows
+  local current_project = vim.fn.fnamemodify(project_root, ':t')
+
+  local choices = {}
+  for _, lf in ipairs(launch_files) do
+    local parsed = parse_launch(lf)
+    if parsed.main_class and parsed.project then
+      -- Show all launches but mark current project ones first
+      table.insert(choices, {
+        label        = parsed.project .. '  →  ' .. parsed.main_class,
+        main_class   = parsed.main_class,
+        project      = parsed.project,
+        jvm_args     = parsed.jvm_args,
+        program_args = parsed.program_args,
+        current      = parsed.project == current_project,
+      })
+    end
+  end
+
+  -- Sort: current project first, then alphabetically
+  table.sort(choices, function(a, b)
+    if a.current ~= b.current then return a.current end
+    return a.label < b.label
+  end)
+
+  if #choices == 0 then
+    vim.notify('No valid launch configurations found', vim.log.levels.ERROR)
+    return
+  end
+
+  local labels = vim.tbl_map(function(c) return c.label end, choices)
+
+  vim.ui.select(labels, { prompt = 'Select launch configuration:' }, function(choice)
+    if not choice then return end
+
+    local selected
+    for _, c in ipairs(choices) do
+      if c.label == choice then
+        selected = c; break
+      end
+    end
+
+    -- Resolve project directory
+    local project_dir = find_project_dir(workspace, selected.project)
+    if not project_dir then
+      vim.notify('Project directory not found: ' .. selected.project, vim.log.levels.ERROR)
+      return
+    end
+
+    -- Parse classpath
+    local cp_data = parse_classpath(project_dir)
+    if not cp_data then
+      vim.notify('No .classpath found in ' .. project_dir, vim.log.levels.ERROR)
+      return
+    end
+
+    -- Guard: check compiled classes exist
+    local out_dir = project_dir .. '/' .. cp_data.output
+    if #vim.fn.glob(out_dir .. '/**/*.class', false, true) == 0 then
+      vim.notify(
+        'No .class files in ' .. out_dir .. ' — build in Eclipse first (Ctrl+B)',
+        vim.log.levels.WARN
+      )
+      return
+    end
+
+    -- Assemble classpath string
+    local sep = package.config:sub(1, 1) == '\\' and ';' or ':'
+    local cp_entries = { out_dir }
+    for _, jar in ipairs(cp_data.jars) do
+      table.insert(cp_entries, jar)
+    end
+
+    -- Assemble full command
+    local parts = {
+      vim.fn.shellescape(java),
+      '-cp', vim.fn.shellescape(table.concat(cp_entries, sep)),
+    }
+
+    if selected.jvm_args ~= '' then
+      table.insert(parts, selected.jvm_args)
+    end
+
+    table.insert(parts, selected.main_class)
+
+    if selected.program_args ~= '' then
+      table.insert(parts, selected.program_args)
+    end
+
+    local cmd = 'cd ' .. vim.fn.shellescape(project_dir)
+        .. ' && ' .. table.concat(parts, ' ')
+
+    vim.cmd('botright split | terminal ' .. cmd)
+  end)
+end
+
 local function patch_refactor()
   local action_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/action.lua'
   local ok, content = pcall(vim.fn.readfile, action_path)
@@ -147,7 +376,7 @@ return {
   keys = {
     -- Runner
     { '<leader>jb',  function() require('java').build.build_workspace() end,       ft = 'java',         desc = 'Build workspace' },
-    { '<leader>jr',  function() require('java').runner.built_in.run_app({}) end,   ft = 'java',         desc = 'Run app' },
+    { '<leader>jr',  eclipse_run,                                                  ft = 'java',         desc = 'Run app' },
     { '<leader>js',  function() require('java').runner.built_in.stop_app() end,    ft = 'java',         desc = 'Stop app' },
     { '<leader>jl',  function() require('java').runner.built_in.toggle_logs() end, ft = 'java',         desc = 'Toggle logs' },
 
