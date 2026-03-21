@@ -1,29 +1,76 @@
 local function eclipse_run()
-  -- ── Resolve java binary ───────────────────────────────────────────────────
-  local function resolve_java()
-    local managed = vim.fn.glob(
-      vim.fn.stdpath('data') .. '/nvim-java/packages/openjdk/*/jdk-*/bin/java'
-    )
-    if managed ~= '' then return managed end
+  local function resolve_java(client, project_dir)
+    local runtimes = vim.tbl_get(
+      client, 'config', 'settings', 'java', 'configuration', 'runtimes'
+    ) or {}
+
+    local required_version = nil
+    local classpath_file = project_dir .. '/.classpath'
+    if vim.fn.filereadable(classpath_file) == 1 then
+      local content = table.concat(vim.fn.readfile(classpath_file), '\n')
+      required_version = content:match('JRE_CONTAINER/[^/]*/([^"]+)"')
+    end
+
+    if required_version then
+      for _, runtime in ipairs(runtimes) do
+        if runtime.name == required_version then
+          local java = runtime.path .. '/bin/java'
+          if vim.fn.filereadable(java) == 1 then
+            return java, runtime.name
+          end
+        end
+      end
+      vim.notify(
+        'No runtime for ' .. required_version .. ', falling back to default',
+        vim.log.levels.WARN
+      )
+    end
+
+    for _, runtime in ipairs(runtimes) do
+      if runtime.default then
+        local java = runtime.path .. '/bin/java'
+        if vim.fn.filereadable(java) == 1 then return java, runtime.name end
+      end
+    end
 
     local java_home = vim.fn.getenv('JAVA_HOME')
     if java_home and java_home ~= vim.NIL and java_home ~= '' then
-      local jh = java_home .. '/bin/java'
-      if vim.fn.filereadable(jh) == 1 then return jh end
+      local java = java_home .. '/bin/java'
+      if vim.fn.filereadable(java) == 1 then return java, 'JAVA_HOME' end
     end
 
     local sys = vim.fn.exepath('java')
-    if sys ~= '' then return sys end
-
-    return nil
+    if sys ~= '' then return sys, 'system' end
+    return nil, nil
   end
 
-  -- ── Parse .classpath ──────────────────────────────────────────────────────
+  local function resolve_user_libraries(workspace, lib_names)
+    local jars = {}
+    local ul_file = workspace
+        .. '/.metadata/.plugins/org.eclipse.jdt.core/UserLibraries.xml'
+    if vim.fn.filereadable(ul_file) == 0 then return jars end
+
+    local content = table.concat(vim.fn.readfile(ul_file), '\n')
+    for _, name in ipairs(lib_names) do
+      local lib_block = content:match(
+        '<library name="' .. vim.pesc(name) .. '"(.-)</library>'
+      )
+      if lib_block then
+        for archive in lib_block:gmatch('<archive path="([^"]+)"') do
+          if vim.fn.filereadable(archive) == 1 then
+            table.insert(jars, archive)
+          end
+        end
+      end
+    end
+    return jars
+  end
+
   local function parse_classpath(project_dir)
     local path = project_dir .. '/.classpath'
     if vim.fn.filereadable(path) == 0 then return nil end
 
-    local result  = { output = 'bin', jars = {} }
+    local result = { output = 'bin', jars = {}, user_libraries = {} }
     local content = table.concat(vim.fn.readfile(path), '\n')
 
     for entry in content:gmatch('<classpathentry(.-)/>') do
@@ -42,6 +89,11 @@ local function eclipse_run()
         else
           vim.notify('Jar not found: ' .. full, vim.log.levels.WARN)
         end
+      elseif kind == 'con' then
+        local ul_name = path_val:match('USER_LIBRARY/(.+)')
+        if ul_name then
+          table.insert(result.user_libraries, ul_name)
+        end
       end
 
       ::continue::
@@ -50,7 +102,32 @@ local function eclipse_run()
     return result
   end
 
-  -- ── Parse .launch file ────────────────────────────────────────────────────
+  local function check_stale(project_dir, cp_data)
+    local out_dir = project_dir .. '/' .. cp_data.output
+    local src_files = vim.fn.glob(project_dir .. '/src/**/*.java', false, true)
+    local cls_files = vim.fn.glob(out_dir .. '/**/*.class', false, true)
+
+    if #cls_files == 0 then
+      return false, 'No .class files found — build in Eclipse first (Ctrl+B)'
+    end
+
+    local newest_src, newest_cls = 0, 0
+    for _, f in ipairs(src_files) do
+      local t = vim.fn.getftime(f)
+      if t > newest_src then newest_src = t end
+    end
+    for _, f in ipairs(cls_files) do
+      local t = vim.fn.getftime(f)
+      if t > newest_cls then newest_cls = t end
+    end
+
+    if newest_src > newest_cls then
+      return false, 'Source modified after last build — rebuild in Eclipse (Ctrl+B)'
+    end
+
+    return true, nil
+  end
+
   local function parse_launch(launch_path)
     local content = table.concat(vim.fn.readfile(launch_path), '\n')
     return {
@@ -61,35 +138,93 @@ local function eclipse_run()
     }
   end
 
-  -- ── Find workspace root (dir containing .metadata/) ──────────────────────
   local function find_workspace(start)
     local dir = start
     for _ = 1, 6 do
-      if vim.fn.isdirectory(dir .. '/.metadata') == 1 then
-        return dir
-      end
+      if vim.fn.isdirectory(dir .. '/.metadata') == 1 then return dir end
       local parent = vim.fn.fnamemodify(dir, ':h')
-      if parent == dir then break end -- reached fs root
+      if parent == dir then break end
       dir = parent
     end
     return nil
   end
 
-  -- ── Find project dir by name inside workspace ─────────────────────────────
-  -- Handles: workspace/ProjectName and workspace/subdir/ProjectName
   local function find_project_dir(workspace, project_name)
     local direct = workspace .. '/' .. project_name
     if vim.fn.isdirectory(direct) == 1 then return direct end
 
-    local nested = vim.fn.glob(workspace .. '/*/' .. project_name, false, true)
-    if #nested > 0 then return nested[1] end
+    local dotprojects = vim.fn.glob(workspace .. '/**/.project', false, true)
+    for _, dp in ipairs(dotprojects) do
+      local dir = vim.fn.fnamemodify(dp, ':h')
+      if vim.fn.fnamemodify(dir, ':t') == project_name then return dir end
+      local pcontent = table.concat(vim.fn.readfile(dp), '\n')
+      local pname = pcontent:match('<name>([^<]+)</name>')
+      if pname == project_name then return dir end
+    end
 
     return nil
   end
 
-  -- ═════════════════════════════════════════════════════════════════════════
-  -- MAIN LOGIC
-  -- ═════════════════════════════════════════════════════════════════════════
+  local function collect_launch_files(workspace, project_dirs)
+    local files        = {}
+    local seen         = {}
+
+    local metadata_dir = workspace
+        .. '/.metadata/.plugins/org.eclipse.debug.core/.launches'
+    for _, f in ipairs(vim.fn.glob(metadata_dir .. '/*.launch', false, true)) do
+      if not seen[f] then
+        seen[f] = true; table.insert(files, f)
+      end
+    end
+
+    for _, dir in ipairs(project_dirs) do
+      for _, f in ipairs(vim.fn.glob(dir .. '/*.launch', false, true)) do
+        if not seen[f] then
+          seen[f] = true; table.insert(files, f)
+        end
+      end
+    end
+
+    return files
+  end
+
+  local function open_terminal(cmd)
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.b[buf].eclipse_run_terminal then
+        vim.api.nvim_buf_delete(buf, { force = true })
+        break
+      end
+    end
+
+    -- Create a new empty buffer for the terminal
+    local term_buf = vim.api.nvim_create_buf(false, true)
+    vim.b[term_buf].eclipse_run_terminal = true
+
+    -- Open a new window at the very bottom with fixed height
+    vim.api.nvim_open_win(term_buf, true, {
+      split = 'below',
+      win = 0,
+      height = 15,
+    })
+
+    vim.fn.termopen(cmd, {
+      on_exit = function(_, exit_code)
+        vim.schedule(function()
+          if exit_code == 0 then
+            vim.notify('Program exited successfully', vim.log.levels.INFO)
+          else
+            vim.notify('Program exited with code ' .. exit_code, vim.log.levels.WARN)
+          end
+        end)
+      end,
+    })
+
+    vim.cmd('startinsert')
+  end
+
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- MAIN
+  -- ═══════════════════════════════════════════════════════════════════════════
 
   local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
   if not client then
@@ -99,19 +234,11 @@ local function eclipse_run()
 
   local project_root = client.config.root_dir
 
-  -- ── Delegate Maven/Gradle to run_app ─────────────────────────────────────
-  local has_maven    = vim.fn.filereadable(project_root .. '/pom.xml') == 1
-  local has_gradle   = vim.fn.filereadable(project_root .. '/build.gradle') == 1
-      or vim.fn.filereadable(project_root .. '/build.gradle.kts') == 1
-
-  if has_maven or has_gradle then
+  -- Delegate Maven/Gradle
+  if vim.fn.filereadable(project_root .. '/pom.xml') == 1
+      or vim.fn.filereadable(project_root .. '/build.gradle') == 1
+      or vim.fn.filereadable(project_root .. '/build.gradle.kts') == 1 then
     require('java').runner.built_in.run_app({})
-    return
-  end
-  -- ── Eclipse path ──────────────────────────────────────────────────────────
-  local java = resolve_java()
-  if not java then
-    vim.notify('No java binary found', vim.log.levels.ERROR)
     return
   end
 
@@ -121,24 +248,24 @@ local function eclipse_run()
     return
   end
 
-  local launches_dir = workspace
-      .. '/.metadata/.plugins/org.eclipse.debug.core/.launches'
+  -- Collect all project dirs in workspace (for shared launch file scanning)
+  local all_project_dirs = {}
+  for _, dp in ipairs(vim.fn.glob(workspace .. '/**/.project', false, true)) do
+    table.insert(all_project_dirs, vim.fn.fnamemodify(dp, ':h'))
+  end
 
-  local launch_files = vim.fn.glob(launches_dir .. '/*.launch', false, true)
+  local launch_files = collect_launch_files(workspace, all_project_dirs)
   if #launch_files == 0 then
-    vim.notify('No .launch files found in workspace', vim.log.levels.ERROR)
+    vim.notify('No .launch files found — run the project in Eclipse first', vim.log.levels.ERROR)
     return
   end
 
-  -- ── Filter launches relevant to the current project ───────────────────────
-  -- project_root basename = project name Eclipse knows
   local current_project = vim.fn.fnamemodify(project_root, ':t')
-
   local choices = {}
+
   for _, lf in ipairs(launch_files) do
     local parsed = parse_launch(lf)
     if parsed.main_class and parsed.project then
-      -- Show all launches but mark current project ones first
       table.insert(choices, {
         label        = parsed.project .. '  →  ' .. parsed.main_class,
         main_class   = parsed.main_class,
@@ -150,7 +277,6 @@ local function eclipse_run()
     end
   end
 
-  -- Sort: current project first, then alphabetically
   table.sort(choices, function(a, b)
     if a.current ~= b.current then return a.current end
     return a.label < b.label
@@ -173,38 +299,41 @@ local function eclipse_run()
       end
     end
 
-    -- Resolve project directory
     local project_dir = find_project_dir(workspace, selected.project)
     if not project_dir then
       vim.notify('Project directory not found: ' .. selected.project, vim.log.levels.ERROR)
       return
     end
 
-    -- Parse classpath
+    local java, java_version = resolve_java(client, project_dir)
+    if not java then
+      vim.notify('No java binary found', vim.log.levels.ERROR)
+      return
+    end
+    vim.notify('Using ' .. java_version, vim.log.levels.INFO)
+
     local cp_data = parse_classpath(project_dir)
     if not cp_data then
       vim.notify('No .classpath found in ' .. project_dir, vim.log.levels.ERROR)
       return
     end
 
-    -- Guard: check compiled classes exist
-    local out_dir = project_dir .. '/' .. cp_data.output
-    if #vim.fn.glob(out_dir .. '/**/*.class', false, true) == 0 then
-      vim.notify(
-        'No .class files in ' .. out_dir .. ' — build in Eclipse first (Ctrl+B)',
-        vim.log.levels.WARN
-      )
-      return
+    -- Resolve user libraries
+    local ul_jars = resolve_user_libraries(workspace, cp_data.user_libraries)
+    vim.list_extend(cp_data.jars, ul_jars)
+
+    -- Stale build check
+    local ok, stale_msg = check_stale(project_dir, cp_data)
+    if not ok then
+      vim.notify(stale_msg, vim.log.levels.WARN)
+      -- Warn but don't block — user may know what they're doing
     end
 
-    -- Assemble classpath string
-    local sep = package.config:sub(1, 1) == '\\' and ';' or ':'
+    local sep        = package.config:sub(1, 1) == '\\' and ';' or ':'
+    local out_dir    = project_dir .. '/' .. cp_data.output
     local cp_entries = { out_dir }
-    for _, jar in ipairs(cp_data.jars) do
-      table.insert(cp_entries, jar)
-    end
+    vim.list_extend(cp_entries, cp_data.jars)
 
-    -- Assemble full command
     local parts = {
       vim.fn.shellescape(java),
       '-cp', vim.fn.shellescape(table.concat(cp_entries, sep)),
@@ -223,7 +352,7 @@ local function eclipse_run()
     local cmd = 'cd ' .. vim.fn.shellescape(project_dir)
         .. ' && ' .. table.concat(parts, ' ')
 
-    vim.cmd('botright split | terminal ' .. cmd)
+    open_terminal(cmd)
   end)
 end
 
