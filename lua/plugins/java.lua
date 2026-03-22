@@ -1,4 +1,122 @@
 local function eclipse_run()
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- XML HELPERS
+  -- ═══════════════════════════════════════════════════════════════════════════
+
+  local xml = {}
+
+  -- Decode the five predefined XML entities
+  function xml.decode_entities(s)
+    return (s
+      :gsub('&amp;', '&')
+      :gsub('&lt;', '<')
+      :gsub('&gt;', '>')
+      :gsub('&quot;', '"')
+      :gsub('&apos;', "'"))
+  end
+
+  -- Return the value of a named attribute from a tag string (handles any attr order,
+  -- single/double quotes, and entity-encoded values).
+  function xml.attr(tag, name)
+    local v = tag:match(name .. '%s*=%s*"([^"]*)"')
+        or tag:match(name .. "%s*=%s*'([^']*)'")
+    return v and xml.decode_entities(v) or nil
+  end
+
+  -- Flatten a multi-line XML file into a single line so that cross-line patterns work.
+  function xml.flatten(lines)
+    return table.concat(lines, ' '):gsub('%s+', ' ')
+  end
+
+  -- Iterate over every self-closing or paired tag whose name matches `tag_name`.
+  -- Yields the full inner content string for paired tags, or the attribute string
+  -- for self-closing ones.
+  function xml.each_tag(flat, tag_name)
+    local i = 1
+    return function()
+      while i <= #flat do
+        -- self-closing  <tag_name ... />
+        local s, e, inner = flat:find('<' .. tag_name .. '(%s[^>]*/?>)', i)
+        -- paired  <tag_name ...>...</tag_name>
+        local s2, e2, inner2 = flat:find(
+          '<' .. tag_name .. '(.-)' .. '</' .. tag_name .. '>', i)
+
+        if not s and not s2 then return nil end
+
+        if s and (not s2 or s < s2) then
+          i = e + 1
+          return inner
+        else
+          i = e2 + 1
+          return inner2
+        end
+      end
+    end
+  end
+
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- SHELL-ARG SPLITTING
+  -- ═══════════════════════════════════════════════════════════════════════════
+
+  -- Split a shell-like argument string into a table of tokens,
+  -- respecting single quotes, double quotes, and backslash escapes.
+  local function split_args(s)
+    local args = {}
+    local i = 1
+    local len = #s
+    while i <= len do
+      -- skip whitespace
+      while i <= len and s:sub(i, i):match('%s') do i = i + 1 end
+      if i > len then break end
+
+      local token = ''
+      local c = s:sub(i, i)
+
+      if c == "'" then
+        -- single-quoted: no escapes inside
+        i = i + 1
+        local j = s:find("'", i, true)
+        if not j then j = len + 1 end
+        token = s:sub(i, j - 1)
+        i = j + 1
+      elseif c == '"' then
+        -- double-quoted: backslash escapes only for \\ and \"
+        i = i + 1
+        while i <= len and s:sub(i, i) ~= '"' do
+          if s:sub(i, i) == '\\' and i < len then
+            local next = s:sub(i + 1, i + 1)
+            token = token .. ((next == '"' or next == '\\') and next or ('\\' .. next))
+            i = i + 2
+          else
+            token = token .. s:sub(i, i)
+            i = i + 1
+          end
+        end
+        i = i + 1 -- skip closing "
+      else
+        -- unquoted token
+        while i <= len and not s:sub(i, i):match('%s') do
+          if s:sub(i, i) == '\\' and i < len then
+            token = token .. s:sub(i + 1, i + 1)
+            i = i + 2
+          else
+            token = token .. s:sub(i, i)
+            i = i + 1
+          end
+        end
+      end
+
+      if token ~= '' then
+        table.insert(args, token)
+      end
+    end
+    return args
+  end
+
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- JAVA RESOLUTION
+  -- ═══════════════════════════════════════════════════════════════════════════
+
   local function resolve_java(client, project_dir)
     local runtimes = vim.tbl_get(
       client, 'config', 'settings', 'java', 'configuration', 'runtimes'
@@ -7,8 +125,16 @@ local function eclipse_run()
     local required_version = nil
     local classpath_file = project_dir .. '/.classpath'
     if vim.fn.filereadable(classpath_file) == 1 then
-      local content = table.concat(vim.fn.readfile(classpath_file), '\n')
-      required_version = content:match('JRE_CONTAINER/[^/]*/([^"]+)"')
+      local flat = xml.flatten(vim.fn.readfile(classpath_file))
+      -- Match JRE_CONTAINER entries for required version
+      for entry in xml.each_tag(flat, 'classpathentry') do
+        local kind = xml.attr(entry, 'kind')
+        local path = xml.attr(entry, 'path')
+        if kind == 'con' and path then
+          required_version = path:match('JRE_CONTAINER/[^/]*/([^/"]+)')
+          if required_version then break end
+        end
+      end
     end
 
     if required_version then
@@ -44,21 +170,28 @@ local function eclipse_run()
     return nil, nil
   end
 
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- USER LIBRARIES
+  -- ═══════════════════════════════════════════════════════════════════════════
+
   local function resolve_user_libraries(workspace, lib_names)
     local jars = {}
     local ul_file = workspace
         .. '/.metadata/.plugins/org.eclipse.jdt.core/UserLibraries.xml'
     if vim.fn.filereadable(ul_file) == 0 then return jars end
 
-    local content = table.concat(vim.fn.readfile(ul_file), '\n')
+    local flat = xml.flatten(vim.fn.readfile(ul_file))
+
     for _, name in ipairs(lib_names) do
-      local lib_block = content:match(
-        '<library name="' .. vim.pesc(name) .. '"(.-)</library>'
-      )
-      if lib_block then
-        for archive in lib_block:gmatch('<archive path="([^"]+)"') do
-          if vim.fn.filereadable(archive) == 1 then
-            table.insert(jars, archive)
+      -- Find the <library name="..."> block using the xml helper
+      for lib_block in xml.each_tag(flat, 'library') do
+        local lib_name = xml.attr(lib_block, 'name')
+        if lib_name == name then
+          for archive_tag in xml.each_tag(lib_block, 'archive') do
+            local path = xml.attr(archive_tag, 'path')
+            if path and vim.fn.filereadable(path) == 1 then
+              table.insert(jars, path)
+            end
           end
         end
       end
@@ -66,44 +199,153 @@ local function eclipse_run()
     return jars
   end
 
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- LINKED RESOURCES
+  -- ═══════════════════════════════════════════════════════════════════════════
+
+  -- Returns a table mapping virtual name → real path for all linked resources.
+  local function resolve_linked_resources(project_dir)
+    local links = {}
+    local dot_project = project_dir .. '/.project'
+    if vim.fn.filereadable(dot_project) == 0 then return links end
+
+    local flat = xml.flatten(vim.fn.readfile(dot_project))
+
+    for link_block in xml.each_tag(flat, 'link') do
+      local vname    = xml.attr(link_block, 'name')
+      local loc      = xml.attr(link_block, 'location')
+      local loc_uri  = xml.attr(link_block, 'locationURI')
+
+      local resolved = loc or loc_uri
+      if resolved and vname then
+        -- locationURI may use Eclipse path variables like PROJECT_LOC or PARENT-1-PROJECT_LOC
+        resolved = resolved
+            :gsub('PROJECT_LOC', project_dir)
+            :gsub('PARENT%-(%d+)%-PROJECT_LOC', function(n)
+              local dir = project_dir
+              for _ = 1, tonumber(n) do
+                dir = vim.fn.fnamemodify(dir, ':h')
+              end
+              return dir
+            end)
+        links[vname] = resolved
+      end
+    end
+    return links
+  end
+
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- CLASSPATH PARSING
+  -- ═══════════════════════════════════════════════════════════════════════════
+
   local function parse_classpath(project_dir)
     local path = project_dir .. '/.classpath'
     if vim.fn.filereadable(path) == 0 then return nil end
 
-    local result = { output = 'bin', jars = {}, user_libraries = {} }
-    local content = table.concat(vim.fn.readfile(path), '\n')
+    local result = {
+      output         = 'bin',
+      jars           = {},
+      user_libraries = {},
+      module_path    = {}, -- jars that belong on --module-path
+      is_modular     = false,
+    }
 
-    for entry in content:gmatch('<classpathentry(.-)/>') do
-      local kind     = entry:match('kind="([^"]+)"')
-      local path_val = entry:match('path="([^"]+)"')
-      if not kind or not path_val then goto continue end
+    local flat   = xml.flatten(vim.fn.readfile(path))
+    local linked = resolve_linked_resources(project_dir)
 
-      if kind == 'output' then
-        result.output = path_val
-      elseif kind == 'lib' then
-        local full = path_val:sub(1, 1) == '/'
-            and path_val
-            or project_dir .. '/' .. path_val
-        if vim.fn.filereadable(full) == 1 then
-          table.insert(result.jars, full)
-        else
-          vim.notify('Jar not found: ' .. full, vim.log.levels.WARN)
-        end
-      elseif kind == 'con' then
-        local ul_name = path_val:match('USER_LIBRARY/(.+)')
-        if ul_name then
-          table.insert(result.user_libraries, ul_name)
-        end
+    -- Detect module-info.java anywhere under src/
+    if #vim.fn.glob(project_dir .. '/src/**/module-info.java', false, true) > 0
+        or vim.fn.filereadable(project_dir .. '/src/module-info.java') == 1 then
+      result.is_modular = true
+    end
+
+    -- Resolve Eclipse path variables (e.g. CLASSPATH_VAR/foo → real path)
+    local function resolve_variable(path_val)
+      -- Try Eclipse variable substitution from jdtls settings if available
+      -- Common variables: M2_REPO, GRADLE_USER_HOME, etc.
+      local var_name, rest = path_val:match('^([^/]+)/(.+)$')
+      if not var_name then return nil end
+
+      -- Check environment variables
+      local env_val = vim.fn.getenv(var_name)
+      if env_val and env_val ~= vim.NIL and env_val ~= '' then
+        return env_val .. '/' .. rest
       end
 
-      ::continue::
+      -- Fallback: warn
+      vim.notify(
+        'Unresolved classpath variable: ' .. path_val,
+        vim.log.levels.WARN
+      )
+      return nil
+    end
+
+    for entry in xml.each_tag(flat, 'classpathentry') do
+      local kind     = xml.attr(entry, 'kind')
+      local path_val = xml.attr(entry, 'path')
+      local module   = xml.attr(entry, 'module') -- module="true" attribute
+
+      if kind then
+        if kind == 'output' and path_val then
+          result.output = path_val
+        elseif kind == 'lib' and path_val then
+          local full
+          if path_val:sub(1, 1) == '/' then
+            full = path_val
+          else
+            -- Could be a linked resource name
+            local link_resolved = linked[path_val]
+            if link_resolved then
+              full = link_resolved
+            else
+              full = project_dir .. '/' .. path_val
+            end
+          end
+
+          if vim.fn.filereadable(full) == 1 then
+            if module == 'true' or result.is_modular then
+              table.insert(result.module_path, full)
+            else
+              table.insert(result.jars, full)
+            end
+          else
+            vim.notify('Jar not found: ' .. full, vim.log.levels.WARN)
+          end
+        elseif kind == 'var' and path_val then
+          -- Eclipse classpath variable (e.g. M2_REPO/group/artifact/x.jar)
+          local resolved = resolve_variable(path_val)
+          if resolved and vim.fn.filereadable(resolved) == 1 then
+            table.insert(result.jars, resolved)
+          end
+        elseif kind == 'con' and path_val then
+          local ul_name = path_val:match('USER_LIBRARY/(.+)')
+          if ul_name then
+            table.insert(result.user_libraries, ul_name)
+          end
+          -- JRE_CONTAINER is intentionally skipped — java binary handles it
+        elseif kind == 'src' and path_val then
+          -- Source folders: output may be overridden per source entry
+          local src_output = xml.attr(entry, 'output')
+          if src_output then
+            -- Per-source output dir: add it alongside the main output
+            local full_out = project_dir .. '/' .. src_output
+            if vim.fn.isdirectory(full_out) == 1 then
+              table.insert(result.jars, full_out) -- treat as extra classpath dir
+            end
+          end
+        end
+      end
     end
 
     return result
   end
 
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- STALE BUILD CHECK
+  -- ═══════════════════════════════════════════════════════════════════════════
+
   local function check_stale(project_dir, cp_data)
-    local out_dir = project_dir .. '/' .. cp_data.output
+    local out_dir   = project_dir .. '/' .. cp_data.output
     local src_files = vim.fn.glob(project_dir .. '/src/**/*.java', false, true)
     local cls_files = vim.fn.glob(out_dir .. '/**/*.class', false, true)
 
@@ -128,19 +370,39 @@ local function eclipse_run()
     return true, nil
   end
 
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- LAUNCH FILE PARSING
+  -- ═══════════════════════════════════════════════════════════════════════════
+
   local function parse_launch(launch_path)
-    local content = table.concat(vim.fn.readfile(launch_path), '\n')
+    local flat = xml.flatten(vim.fn.readfile(launch_path))
+
+    local function get_attr(key_name)
+      -- <stringAttribute key="KEY_NAME" value="..."/>  or mapAttribute variant
+      local val = flat:match(
+        'key%s*=%s*"' .. vim.pesc(key_name) .. '"%s+value%s*=%s*"([^"]*)"'
+      ) or flat:match(
+        'value%s*=%s*"([^"]*)"%s+key%s*=%s*"' .. vim.pesc(key_name) .. '"'
+      )
+      return val and xml.decode_entities(val) or nil
+    end
+
     return {
-      main_class   = content:match('MAIN_TYPE.-value="([^"]+)"'),
-      project      = content:match('PROJECT_ATTR.-value="([^"]+)"'),
-      jvm_args     = content:match('VM_ARGUMENTS.-value="([^"]+)"') or '',
-      program_args = content:match('PROGRAM_ARGUMENTS.-value="([^"]+)"') or '',
+      main_class   = get_attr('org.eclipse.jdt.launching.MAIN_TYPE'),
+      project      = get_attr('org.eclipse.jdt.launching.PROJECT_ATTR'),
+      jvm_args     = get_attr('org.eclipse.jdt.launching.VM_ARGUMENTS') or '',
+      program_args = get_attr('org.eclipse.jdt.launching.PROGRAM_ARGUMENTS') or '',
     }
   end
 
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- WORKSPACE / PROJECT DISCOVERY
+  -- ═══════════════════════════════════════════════════════════════════════════
+
   local function find_workspace(start)
     local dir = start
-    for _ = 1, 6 do
+    -- Raised to 12 levels to handle deeply nested monorepo structures
+    for _ = 1, 12 do
       if vim.fn.isdirectory(dir .. '/.metadata') == 1 then return dir end
       local parent = vim.fn.fnamemodify(dir, ':h')
       if parent == dir then break end
@@ -157,53 +419,76 @@ local function eclipse_run()
     for _, dp in ipairs(dotprojects) do
       local dir = vim.fn.fnamemodify(dp, ':h')
       if vim.fn.fnamemodify(dir, ':t') == project_name then return dir end
-      local pcontent = table.concat(vim.fn.readfile(dp), '\n')
-      local pname = pcontent:match('<name>([^<]+)</name>')
-      if pname == project_name then return dir end
+      local flat  = xml.flatten(vim.fn.readfile(dp))
+      local pname = flat:match('<name>%s*([^<]+)%s*</name>')
+      if pname and xml.decode_entities(pname) == project_name then return dir end
     end
 
     return nil
   end
 
-  local function collect_launch_files(workspace, project_dirs)
-    local files        = {}
-    local seen         = {}
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- LAUNCH FILE COLLECTION
+  -- ═══════════════════════════════════════════════════════════════════════════
 
-    local metadata_dir = workspace
-        .. '/.metadata/.plugins/org.eclipse.debug.core/.launches'
-    for _, f in ipairs(vim.fn.glob(metadata_dir .. '/*.launch', false, true)) do
+  local function collect_launch_files(workspace, project_dirs)
+    local files = {}
+    local seen  = {}
+
+    local function add(f)
       if not seen[f] then
         seen[f] = true; table.insert(files, f)
       end
     end
 
+    -- Eclipse metadata launches
+    local metadata_dir = workspace
+        .. '/.metadata/.plugins/org.eclipse.debug.core/.launches'
+    for _, f in ipairs(vim.fn.glob(metadata_dir .. '/*.launch', false, true)) do
+      add(f)
+    end
+
+    -- Per-project launches — search recursively (not just project root)
     for _, dir in ipairs(project_dirs) do
-      for _, f in ipairs(vim.fn.glob(dir .. '/*.launch', false, true)) do
-        if not seen[f] then
-          seen[f] = true; table.insert(files, f)
-        end
+      for _, f in ipairs(vim.fn.glob(dir .. '/**/*.launch', false, true)) do
+        add(f)
       end
     end
 
     return files
   end
 
-  local function open_terminal(cmd)
+  -- ═══════════════════════════════════════════════════════════════════════════
+  -- TERMINAL
+  -- ═══════════════════════════════════════════════════════════════════════════
+
+  local RUN_HISTORY_MAX = 3
+
+  local function open_terminal(cmd, label)
+    -- Collect existing run buffers
+    local existing = {}
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.b[buf].eclipse_run_terminal then
-        vim.api.nvim_buf_delete(buf, { force = true })
-        break
-      end
+      local idx = vim.b[buf].eclipse_run_index
+      if idx then table.insert(existing, { buf = buf, idx = idx }) end
+    end
+    table.sort(existing, function(a, b) return a.idx < b.idx end)
+
+    -- Evict oldest if we're at the limit
+    if #existing >= RUN_HISTORY_MAX then
+      vim.api.nvim_buf_delete(existing[1].buf, { force = true })
+      table.remove(existing, 1)
     end
 
-    -- Create a new empty buffer for the terminal
-    local term_buf = vim.api.nvim_create_buf(false, true)
-    vim.b[term_buf].eclipse_run_terminal = true
+    local run_index                      = (existing[#existing] and existing[#existing].idx or 0) + 1
 
-    -- Open a new window at the very bottom with fixed height
+    local term_buf                       = vim.api.nvim_create_buf(false, true)
+    vim.b[term_buf].eclipse_run_terminal = true
+    vim.b[term_buf].eclipse_run_index    = run_index
+    vim.api.nvim_buf_set_name(term_buf, 'EclipseRun[' .. run_index .. '] ' .. label)
+
     vim.api.nvim_open_win(term_buf, true, {
-      split = 'below',
-      win = 0,
+      split  = 'below',
+      win    = 0,
       height = 15,
     })
 
@@ -212,9 +497,9 @@ local function eclipse_run()
       on_exit = function(_, exit_code)
         vim.schedule(function()
           if exit_code == 0 then
-            vim.notify('Program exited successfully', vim.log.levels.INFO)
+            vim.notify('[' .. label .. '] exited successfully', vim.log.levels.INFO)
           else
-            vim.notify('Program exited with code ' .. exit_code, vim.log.levels.WARN)
+            vim.notify('[' .. label .. '] exited with code ' .. exit_code, vim.log.levels.WARN)
           end
         end)
       end,
@@ -249,7 +534,6 @@ local function eclipse_run()
     return
   end
 
-  -- Collect all project dirs in workspace (for shared launch file scanning)
   local all_project_dirs = {}
   for _, dp in ipairs(vim.fn.glob(workspace .. '/**/.project', false, true)) do
     table.insert(all_project_dirs, vim.fn.fnamemodify(dp, ':h'))
@@ -327,33 +611,52 @@ local function eclipse_run()
     local ok, stale_msg = check_stale(project_dir, cp_data)
     if not ok then
       vim.notify(stale_msg, vim.log.levels.WARN)
-      -- Warn but don't block — user may know what they're doing
     end
 
-    local sep        = package.config:sub(1, 1) == '\\' and ';' or ':'
-    local out_dir    = project_dir .. '/' .. cp_data.output
+    local sep     = package.config:sub(1, 1) == '\\' and ';' or ':'
+    local out_dir = project_dir .. '/' .. cp_data.output
+
+    -- ── Build the command parts ─────────────────────────────────────────────
+
+    local parts   = { vim.fn.shellescape(java) }
+
+    -- Module path (Java 9+ modular projects)
+    if #cp_data.module_path > 0 then
+      local mp_entries = { out_dir }
+      vim.list_extend(mp_entries, cp_data.module_path)
+      table.insert(parts, '--module-path')
+      table.insert(parts, vim.fn.shellescape(table.concat(mp_entries, sep)))
+      table.insert(parts, '--add-modules')
+      table.insert(parts, 'ALL-MODULE-PATH')
+    end
+
+    -- Classpath
     local cp_entries = { out_dir }
     vim.list_extend(cp_entries, cp_data.jars)
+    table.insert(parts, '-cp')
+    table.insert(parts, vim.fn.shellescape(table.concat(cp_entries, sep)))
 
-    local parts = {
-      vim.fn.shellescape(java),
-      '-cp', vim.fn.shellescape(table.concat(cp_entries, sep)),
-    }
-
+    -- JVM args: split properly so quoted/spaced args don't break the command
     if selected.jvm_args ~= '' then
-      table.insert(parts, selected.jvm_args)
+      for _, arg in ipairs(split_args(selected.jvm_args)) do
+        table.insert(parts, vim.fn.shellescape(arg))
+      end
     end
 
     table.insert(parts, selected.main_class)
 
+    -- Program args: same proper splitting
     if selected.program_args ~= '' then
-      table.insert(parts, selected.program_args)
+      for _, arg in ipairs(split_args(selected.program_args)) do
+        table.insert(parts, vim.fn.shellescape(arg))
+      end
     end
 
     local cmd = 'cd ' .. vim.fn.shellescape(project_dir)
         .. ' && ' .. table.concat(parts, ' ')
 
-    open_terminal(cmd)
+    local label = selected.project .. ':' .. selected.main_class:match('[^.]+$')
+    open_terminal(cmd, label)
   end)
 end
 

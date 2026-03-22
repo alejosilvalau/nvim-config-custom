@@ -15,6 +15,7 @@ return {
     { "<leader>f*", "<cmd>Telescope grep_string<cr>", desc = "Search current word" },
     { "<leader>fd", "<cmd>Telescope diagnostics<cr>", desc = "Search diagnostics" },
     { "<leader>fo", "<cmd>Telescope oldfiles<cr>",    desc = "Search old files" },
+    { "<leader>fb", "<cmd>Telescope buffers<cr>",     desc = "Search buffers" },
   },
   opts = {
     defaults = {
