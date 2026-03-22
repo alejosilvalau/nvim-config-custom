@@ -462,29 +462,18 @@ local function eclipse_run()
   -- TERMINAL
   -- ═══════════════════════════════════════════════════════════════════════════
 
-  local RUN_HISTORY_MAX = 3
-
   local function open_terminal(cmd, label)
-    -- Collect existing run buffers
-    local existing = {}
+    -- Kill previous run terminal if it exists
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      local idx = vim.b[buf].eclipse_run_index
-      if idx then table.insert(existing, { buf = buf, idx = idx }) end
-    end
-    table.sort(existing, function(a, b) return a.idx < b.idx end)
-
-    -- Evict oldest if we're at the limit
-    if #existing >= RUN_HISTORY_MAX then
-      vim.api.nvim_buf_delete(existing[1].buf, { force = true })
-      table.remove(existing, 1)
+      if vim.b[buf].eclipse_run_terminal then
+        vim.api.nvim_buf_delete(buf, { force = true })
+        break
+      end
     end
 
-    local run_index                      = (existing[#existing] and existing[#existing].idx or 0) + 1
-
-    local term_buf                       = vim.api.nvim_create_buf(false, true)
+    local term_buf = vim.api.nvim_create_buf(false, true)
     vim.b[term_buf].eclipse_run_terminal = true
-    vim.b[term_buf].eclipse_run_index    = run_index
-    vim.api.nvim_buf_set_name(term_buf, 'EclipseRun[' .. run_index .. '] ' .. label)
+    vim.api.nvim_buf_set_name(term_buf, 'EclipseRun ' .. label)
 
     vim.api.nvim_open_win(term_buf, true, {
       split  = 'below',
