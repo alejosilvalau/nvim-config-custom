@@ -207,7 +207,8 @@ local function eclipse_run()
       height = 15,
     })
 
-    vim.fn.termopen(cmd, {
+    vim.fn.jobstart(cmd, {
+      term = true,
       on_exit = function(_, exit_code)
         vim.schedule(function()
           if exit_code == 0 then
