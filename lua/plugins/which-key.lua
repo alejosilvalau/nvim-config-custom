@@ -25,6 +25,9 @@ return {
       { '<leader>t',  group = 'Database',     mode = { 'n', 'v' } },
       { '<leader>i',  group = 'Images',       mode = { 'n', 'v' } },
       { 'gr',         group = 'LSP Actions',  mode = { 'n', 'v' } },
+      { '<leader>l',  group = 'Lists',        mode = { 'n', 'v' } },
+      { '<leader>lq', group = 'Quickfix',     mode = { 'n', 'v' } },
+      { '<leader>ll', group = 'Location',     mode = { 'n', 'v' } },
     },
   },
   keys = {

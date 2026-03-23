@@ -65,12 +65,18 @@ vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { desc = "Previous quickfix item"
 vim.keymap.set("n", "<M-Down>", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
 vim.keymap.set("n", "<M-Up>", "<cmd>cprev<CR>", { desc = "Previous quickfix item" })
 
--- Location list navigation
-vim.keymap.set("n", "<M-j>", "<cmd>lnext<CR>", { desc = "Next location item" })
-vim.keymap.set("n", "<M-k>", "<cmd>lprev<CR>", { desc = "Previous location item" })
+vim.keymap.set("n", "<leader>lqo", "<cmd>copen<CR>", { desc = "Open quickfix list" })
+vim.keymap.set("n", "<leader>lqc", "<cmd>cclose<CR>", { desc = "Close quickfix list" })
 
-vim.keymap.set("n", "<M-Down>", "<cmd>lnext<CR>", { desc = "Next location item" })
-vim.keymap.set("n", "<M-Up>", "<cmd>lprev<CR>", { desc = "Previous location item" })
+-- Location list navigation
+vim.keymap.set("n", "<leader>lqj", "<cmd>lnext<CR>", { desc = "Next location item" })
+vim.keymap.set("n", "<leader>lqk", "<cmd>lprev<CR>", { desc = "Previous location item" })
+
+vim.keymap.set("n", "<leader>lqDown", "<cmd>lnext<CR>", { desc = "Next location item" })
+vim.keymap.set("n", "<leader>lqUp", "<cmd>lprev<CR>", { desc = "Previous location item" })
+
+vim.keymap.set("n", "<leader>llo", "<cmd>lopen<CR>", { desc = "Open location list" })
+vim.keymap.set("n", "<leader>llc", "<cmd>lclose<CR>", { desc = "Close location list" })
 
 -- Fix for vertical editing
 vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Exit insert mode" })
