@@ -69,11 +69,11 @@ vim.keymap.set("n", "<leader>lqo", "<cmd>copen<CR>", { desc = "Open quickfix lis
 vim.keymap.set("n", "<leader>lqc", "<cmd>cclose<CR>", { desc = "Close quickfix list" })
 
 -- Location list navigation
-vim.keymap.set("n", "<leader>lqj", "<cmd>lnext<CR>", { desc = "Next location item" })
-vim.keymap.set("n", "<leader>lqk", "<cmd>lprev<CR>", { desc = "Previous location item" })
+vim.keymap.set("n", "<C-M-j>j", "<cmd>lnext<CR>", { desc = "Next location item" })
+vim.keymap.set("n", "<C-M-k>", "<cmd>lprev<CR>", { desc = "Previous location item" })
 
-vim.keymap.set("n", "<leader>lqDown", "<cmd>lnext<CR>", { desc = "Next location item" })
-vim.keymap.set("n", "<leader>lqUp", "<cmd>lprev<CR>", { desc = "Previous location item" })
+vim.keymap.set("n", "<C-M-Down>", "<cmd>lnext<CR>", { desc = "Next location item" })
+vim.keymap.set("n", "<C-M-Up>", "<cmd>lprev<CR>", { desc = "Previous location item" })
 
 vim.keymap.set("n", "<leader>llo", "<cmd>lopen<CR>", { desc = "Open location list" })
 vim.keymap.set("n", "<leader>llc", "<cmd>lclose<CR>", { desc = "Close location list" })
