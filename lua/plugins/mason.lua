@@ -85,7 +85,8 @@ return {
         'cssls',
         'emmet_ls',
         'bashls',
-        'sqlls'
+        'sqlls',
+        'pyright'
       },
     })
 

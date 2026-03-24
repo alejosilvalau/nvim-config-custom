@@ -7,6 +7,8 @@ return {
       "vimdoc",
       "javascript",
       "typescript",
+      "python",
+      "sql",
       "lua",
       "jsdoc",
       "bash",
