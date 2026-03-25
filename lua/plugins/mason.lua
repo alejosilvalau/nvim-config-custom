@@ -75,6 +75,17 @@ return {
       }
     })
 
+    require("lspconfig").pyright.setup({
+      settings = {
+        python = {
+          analysis = {
+            autoSearchPaths = true,
+            useLibraryCodeForTypes = true,
+          }
+        }
+      }
+    })
+
     require('mason').setup({})
     require('mason-lspconfig').setup({
       ensure_installed = {
