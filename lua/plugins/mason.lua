@@ -75,13 +75,15 @@ return {
       }
     })
 
-    require("lspconfig").pyright.setup({
+    vim.lsp.config('pyright', {
       settings = {
         python = {
           analysis = {
             autoSearchPaths = true,
             useLibraryCodeForTypes = true,
-          }
+          },
+          venvPath = ".",
+          venv = ".venv",
         }
       }
     })
