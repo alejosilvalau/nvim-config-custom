@@ -8,7 +8,7 @@ return {
   ---@module 'avante'
   ---@type avante.Config
   opts = {
-    instructions_file = "avante.md",
+    instructions_file = "AGENTS.md",
     provider = "copilot",
     behaviour = {
       auto_suggestions = false,
@@ -17,7 +17,7 @@ return {
       auto_apply_diff_after_generation = false,
       support_paste_from_clipboard = false,
       auto_approve_tool_permissions = false,
-      confirmation_ui_style = "inline_buttons",
+      confirmation_ui_style = "popup",
     },
     providers = {
       copilot = {
