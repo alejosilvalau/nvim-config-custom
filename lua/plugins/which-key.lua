@@ -28,6 +28,7 @@ return {
       { '<leader>l',  group = 'Lists',        mode = { 'n', 'v' } },
       { '<leader>lq', group = 'Quickfix',     mode = { 'n', 'v' } },
       { '<leader>ll', group = 'Location',     mode = { 'n', 'v' } },
+      { '<leader>c',  group = 'REST',         mode = { 'n', 'v' } },
     },
   },
   keys = {
