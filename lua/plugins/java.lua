@@ -119,6 +119,12 @@ return {
           }
         }
       },
+      on_attach = function(_, bufnr)
+        vim.bo[bufnr].tabstop = 4
+        vim.bo[bufnr].shiftwidth = 4
+        vim.bo[bufnr].softtabstop = 4
+        vim.bo[bufnr].expandtab = true
+      end,
       root_dir = vim.fs.root(0, {
         '.project',
         '.classpath',
@@ -131,6 +137,7 @@ return {
         'gradlew',
       }),
     })
+
     vim.lsp.enable('jdtls')
 
     vim.api.nvim_create_autocmd('BufWritePost', {
