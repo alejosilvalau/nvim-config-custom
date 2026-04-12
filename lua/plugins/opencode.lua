@@ -15,7 +15,7 @@ return {
           win = {
             input = {
               keys = {
-                ["<a-a>"] = { "opencode_send", mode = { "n", "i" } },
+                ["<M-a>"] = { "opencode_send", mode = { "n", "i" } },
               },
             },
           },
