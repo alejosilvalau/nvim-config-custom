@@ -91,3 +91,8 @@ vim.keymap.set({ "v" }, "<leader>rs", [[y:%s/<C-r>"/<C-r>"/gI<Left><Left><Left>]
   { desc = "Replace selection" })
 
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make executable" })
+
+-- Buffer navigation
+vim.keymap.set("n", "<leader>bn", ":tabn<CR>", { desc = "Next tab" })
+vim.keymap.set("n", "<leader>bp", ":tabp<CR>", { desc = "Previous tab" })
+vim.keymap.set("n", "<leader>bd", ":tabc<CR>", { desc = "Delete tab" })
