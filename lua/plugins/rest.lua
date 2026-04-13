@@ -11,8 +11,9 @@ return {
     end,
   },
   keys = {
-    { '<leader>cr', '<cmd>Rest run<CR>',  mode = 'n', desc = 'Run HTTP request under cursor' },
-    { '<leader>cp', '<cmd>Rest open<CR>', mode = 'n', desc = 'Open rest.nvim result pane' },
-    { '<leader>cl', '<cmd>Rest last<CR>', mode = 'n', desc = 'Repeat last HTTP request' },
+    { '<leader>cr', '<cmd>Rest run<CR>',                  mode = 'n', desc = 'Run HTTP request under cursor' },
+    { '<leader>cp', '<cmd>Rest open<CR>',                 mode = 'n', desc = 'Open rest.nvim result pane' },
+    { '<leader>cl', '<cmd>Rest last<CR>',                 mode = 'n', desc = 'Repeat last HTTP request' },
+    { '<leader>re', '<cmd>Telescope rest select_env<CR>', mode = 'n', desc = 'Select REST env file' },
   },
 }
