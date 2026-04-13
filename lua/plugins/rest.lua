@@ -8,8 +8,8 @@ return {
     end,
   },
   keys = {
-    { '<leader>cr', '<cmd>RestNvim<CR>',        mode = 'n', desc = 'Run HTTP request under cursor' },
-    { '<leader>cp', '<cmd>RestNvimPreview<CR>', mode = 'n', desc = 'Preview HTTP request' },
-    { '<leader>cl', '<cmd>RestNvimLast<CR>',    mode = 'n', desc = 'Repeat last HTTP request' },
+    { '<leader>cr', '<cmd>Rest run<CR>',  mode = 'n', desc = 'Run HTTP request under cursor' },
+    { '<leader>cp', '<cmd>Rest open<CR>', mode = 'n', desc = 'Open rest.nvim result pane' },
+    { '<leader>cl', '<cmd>Rest last<CR>', mode = 'n', desc = 'Repeat last HTTP request' },
   }
 }

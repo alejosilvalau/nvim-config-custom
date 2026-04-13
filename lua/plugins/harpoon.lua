@@ -15,7 +15,7 @@ return {
     { "<leader>b8", function() require("harpoon"):list():select(8) end,                                mode = "n", desc = "Harpoon select 8" },
     { "<leader>b9", function() require("harpoon"):list():select(9) end,                                mode = "n", desc = "Harpoon select 9" },
     { "<leader>b0", function() require("harpoon"):list():select(10) end,                               mode = "n", desc = "Harpoon select 10" },
-    { "<C-S-P>",    function() require("harpoon"):list():prev() end,                                   mode = "n", desc = "Harpoon previous buffer" },
-    { "<C-S-N>",    function() require("harpoon"):list():next() end,                                   mode = "n", desc = "Harpoon next buffer" },
+    { "<leader>bo", function() require("harpoon"):list():prev() end,                                   mode = "n", desc = "Harpoon previous buffer" },
+    { "<leader>bi", function() require("harpoon"):list():next() end,                                   mode = "n", desc = "Harpoon next buffer" },
   },
 }
