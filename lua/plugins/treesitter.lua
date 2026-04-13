@@ -11,6 +11,7 @@ return {
       "sql",
       "lua",
       "jsdoc",
+      "http",
       "bash",
       "html",
       "css",

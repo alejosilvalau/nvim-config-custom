@@ -9,6 +9,7 @@ return {
       sh = { "shfmt" },
       javascript = { "prettierd", "prettier", stop_after_first = true },
       typescript = { "prettierd", "prettier", stop_after_first = true },
+      json = { "prettierd", "prettier", stop_after_first = true },
       python = { "black", "isort" },
       sql = { "sql_formatter" },
       mysql = { "sql_formatter" },
@@ -19,4 +20,7 @@ return {
       lsp_format = "fallback",
     },
   },
+  init = function()
+    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+  end,
 }
