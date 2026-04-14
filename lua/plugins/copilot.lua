@@ -4,6 +4,9 @@ return {
   event = "InsertEnter",
   opts = {
     copilot_model = "gpt-41-copilot",
+    logger = {
+      level = vim.log.levels.OFF,
+    },
     suggestion = {
       enabled = true,
       auto_trigger = true,
