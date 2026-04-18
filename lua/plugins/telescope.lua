@@ -19,6 +19,11 @@ return {
   },
   opts = {
     defaults = {
+      file_ignore_patterns = {
+        "worktrees/",
+        "node_modules/",
+        ".git/",
+      },
       vimgrep_arguments = {
         "rg",
         "--color=never",
