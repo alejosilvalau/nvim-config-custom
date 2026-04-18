@@ -29,11 +29,18 @@ return {
         "--smart-case",
         "--no-ignore",
         "--hidden",
+        "--glob",
+        "!.git/**",
+        "--glob",
+        "!worktrees/**",
+        "--glob",
+        "!node_modules/**",
       },
       mappings = {
         i = { ["<CR>"] = require("telescope.actions").select_default },
         n = { ["<CR>"] = require("telescope.actions").select_default },
       },
+      path_display = { "smart" },
     },
     pickers = {
       find_files = {
