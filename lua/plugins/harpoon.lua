@@ -13,8 +13,10 @@ return {
             return list_item.value
           elseif n == 2 then
             return parts[n - 1] .. "/" .. parts[n]
+          elseif n == 3 then
+            return parts[n - 2] .. "/" .. parts[n - 1] .. "/" .. parts[n]
           else
-            return "../" .. parts[n - 1] .. "/" .. parts[n]
+            return "../" .. parts[n - 2] .. "/" .. parts[n - 1] .. "/" .. parts[n]
           end
         end,
       },
