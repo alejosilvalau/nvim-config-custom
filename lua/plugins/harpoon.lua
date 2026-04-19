@@ -2,6 +2,24 @@ return {
   "ThePrimeagen/harpoon",
   branch = "harpoon2",
   dependencies = { "nvim-lua/plenary.nvim" },
+  config = function()
+    local harpoon = require("harpoon")
+    harpoon:setup({
+      default = {
+        display = function(list_item)
+          local parts = vim.split(list_item.value, "/")
+          local n = #parts
+          if n == 1 then
+            return list_item.value
+          elseif n == 2 then
+            return parts[n - 1] .. "/" .. parts[n]
+          else
+            return "../" .. parts[n - 1] .. "/" .. parts[n]
+          end
+        end,
+      },
+    })
+  end,
   keys = {
     { "<leader>ba", function() require("harpoon"):list():add() end,                                    mode = "n", desc = "Harpoon add" },
     { "<leader>bl", function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end, mode = "n", desc = "Harpoon quick menu" },
