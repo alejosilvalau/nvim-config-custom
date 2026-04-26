@@ -14,6 +14,7 @@ return {
       sql = { "sql_formatter" },
       mysql = { "sql_formatter" },
       xml = { "prettierd", "prettier", stop_after_first = true },
+      dotenv = {},
     },
     format_on_save = {
       timeout_ms = 500,
