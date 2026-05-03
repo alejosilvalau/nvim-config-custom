@@ -6,7 +6,6 @@ return {
     'JavaHello/spring-boot.nvim',
   },
   config = function()
-
     require('java').setup({})
     vim.lsp.config('jdtls', {
       settings = {
@@ -42,17 +41,6 @@ return {
     })
 
     vim.lsp.enable('jdtls')
-
-    -- vim.api.nvim_create_autocmd('BufWritePost', {
-    --   pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml', '.classpath', '.project' },
-    --   callback = function()
-    --     -- Only restart if jdtls is actually running
-    --     local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
-    --     if client then
-    --       client:stop()
-    --     end
-    --   end,
-    -- })
   end,
   keys = {
     -- Runner
