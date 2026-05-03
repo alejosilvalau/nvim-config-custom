@@ -146,7 +146,7 @@ return {
         -- Only restart if jdtls is actually running
         local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
         if client then
-          vim.cmd('LspRestart jdtls')
+          client:stop()
         end
       end,
     })

@@ -3,9 +3,12 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
+    { "lewis6991/async.nvim", lazy = true },
   },
   lazy = false,
-  opts = {},
+  config = function()
+    require("refactoring").setup()
+  end,
   keys = {
     { "<leader>re", ":Refactor extract ",                                    mode = "x",          desc = "Extract" },
     { "<leader>rf", ":Refactor extract_to_file ",                            mode = "x",          desc = "Extract to file" },
