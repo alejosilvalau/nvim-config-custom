@@ -1,95 +1,3 @@
-local function patch_refactor()
-  local action_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/action.lua'
-  local ok, content = pcall(vim.fn.readfile, action_path)
-  if ok then
-    local patched = false
-    for i, line in ipairs(content) do
-      if line:find('for _, rename in ipairs%(params%)') then
-        content[i] = line:gsub('ipairs%(params%)', 'ipairs(params or {})')
-        patched = true
-        break
-      end
-    end
-    if patched then
-      vim.fn.writefile(content, action_path)
-    end
-  end
-end
-
-local function patch_test()
-  local test_api_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-test/api.lua'
-  local ok2, content2 = pcall(vim.fn.readfile, test_api_path)
-  if ok2 then
-    local changed = false
-    for i, line in ipairs(content2) do
-      -- Fix #nil guards
-      local new_line = line:gsub('if #(%w+) < 1 then', 'if not %1 or #%1 < 1 then')
-      -- Fix ipairs(nil) in get_test_methods
-      new_line = new_line:gsub('for (.-) in ipairs%(classes%) do', 'for %1 in ipairs(classes or {}) do')
-      if new_line ~= line then
-        content2[i] = new_line
-        changed = true
-      end
-    end
-    if changed then
-      vim.fn.writefile(content2, test_api_path)
-    end
-  end
-end
-
-local function patch_report()
-  local junit_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-test/reports/junit.lua'
-  local ok3, content3 = pcall(vim.fn.readfile, junit_path)
-  if ok3 then
-    local changed = false
-    for i, line in ipairs(content3) do
-      if line:find('return self.result_parser:get_test_details%(%)')
-          and not content3[i - 1]:find('if not self.result_parser') then
-        table.insert(content3, i, '\tif not self.result_parser then return {} end')
-        changed = true
-        break
-      end
-    end
-    if changed then
-      vim.fn.writefile(content3, junit_path)
-    end
-  end
-end
-
-local function patch_imports()
-  local action_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/action.lua'
-  local ok, content = pcall(vim.fn.readfile, action_path)
-  if not ok then return end
-  local changed = false
-  for i, line in ipairs(content) do
-    if line:find('for _, selection in ipairs%(selections%)') and not line:find('or {}') then
-      content[i] = line:gsub('ipairs%(selections%)', 'ipairs(selections or {})')
-      changed = true
-      break
-    end
-  end
-  if changed then
-    vim.fn.writefile(content, action_path)
-  end
-
-  local handler_path = vim.fn.stdpath('data') .. '/lazy/nvim-java/lua/java-refactor/client-command-handlers.lua'
-  local ok2, content2 = pcall(vim.fn.readfile, handler_path)
-  if not ok2 then return end
-  local changed2 = false
-  for i, line in ipairs(content2) do
-    if line:find('local selections = params%[2%]') then
-      if not content2[i + 1]:find('if not selections') then
-        table.insert(content2, i + 1, '\t\tif not selections or #selections == 0 then return {} end')
-        changed2 = true
-      end
-      break
-    end
-  end
-  if changed2 then
-    vim.fn.writefile(content2, handler_path)
-  end
-end
-
 return {
   'nvim-java/nvim-java',
   ft = 'java',
@@ -98,10 +6,6 @@ return {
     'JavaHello/spring-boot.nvim',
   },
   config = function()
-    patch_refactor()
-    patch_test()
-    patch_report()
-    patch_imports()
 
     require('java').setup({})
     vim.lsp.config('jdtls', {
@@ -139,16 +43,16 @@ return {
 
     vim.lsp.enable('jdtls')
 
-    vim.api.nvim_create_autocmd('BufWritePost', {
-      pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml', '.classpath', '.project' },
-      callback = function()
-        -- Only restart if jdtls is actually running
-        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
-        if client then
-          client:stop()
-        end
-      end,
-    })
+    -- vim.api.nvim_create_autocmd('BufWritePost', {
+    --   pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml', '.classpath', '.project' },
+    --   callback = function()
+    --     -- Only restart if jdtls is actually running
+    --     local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+    --     if client then
+    --       client:stop()
+    --     end
+    --   end,
+    -- })
   end,
   keys = {
     -- Runner
