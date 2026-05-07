@@ -74,21 +74,7 @@ return {
     { '<leader>jec', function() require('java').refactor.extract_constant() end,   mode = { 'v', 'n' }, ft = 'java',             desc = 'Extract constant' },
 
     -- Misc
-    {
-      '<leader>jo',
-      function()
-        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
-        if not client then
-          vim.notify('No JDTLS client found', vim.log.levels.ERROR)
-          return
-        end
-        client.request('workspace/executeCommand', {
-          command = 'java.edit.organizeImports',
-        }, function() end, 0)
-      end,
-      ft = 'java',
-      desc = 'Organize imports'
-    },
+    { '<leader>jo',  '<cmd>lsp restart<CR>',                                       mode = { 'v', 'n' }, ft = 'java',             desc = 'Restart LSP' },
     {
       '<leader>jD',
       function()
