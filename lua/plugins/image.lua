@@ -15,6 +15,7 @@ return {
       },
     },
     window_overlap_clear_enabled = true,
+    window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "notify", "netrw", "lazy" },
     editor_only_render_when_focused = true,
   },
   keys = {

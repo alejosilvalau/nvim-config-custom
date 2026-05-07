@@ -40,6 +40,16 @@ return {
       }),
     })
 
+    vim.api.nvim_create_autocmd('BufWritePost', {
+      pattern = { '*.java', '*.xml', '*.gradle', '*.kts', '*.properties', '*.yml', '*.yaml', '.classpath', '.project' },
+      callback = function()
+        local client = vim.lsp.get_clients({ name = 'jdtls' })[1]
+        if client then
+          vim.cmd('lsp restart jdtls')
+        end
+      end,
+    })
+
     vim.lsp.enable('jdtls')
   end,
   keys = {
