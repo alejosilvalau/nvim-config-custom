@@ -2,25 +2,16 @@ return {
   'stevearc/conform.nvim',
   event = { "BufWritePre" },
   cmd = { "ConformInfo" },
-  opts = {
-    formatters_by_ft = {
-      lua = { "stylua" },
-      bash = { "shfmt" },
-      sh = { "shfmt" },
-      javascript = { "prettierd", "prettier", stop_after_first = true },
-      typescript = { "prettierd", "prettier", stop_after_first = true },
-      json = { "prettierd", "prettier", stop_after_first = true },
-      python = { "black", "isort" },
-      sql = { "sql_formatter" },
-      mysql = { "sql_formatter" },
-      xml = { "prettierd", "prettier", stop_after_first = true },
-      dotenv = {},
-    },
-    format_on_save = {
-      timeout_ms = 500,
-      lsp_format = "fallback",
-    },
-  },
+  config = function()
+    local env = require("environments")
+    require('conform').setup({
+      formatters_by_ft = env.formatters,
+      format_on_save = {
+        timeout_ms = 500,
+        lsp_format = "fallback",
+      },
+    })
+  end,
   init = function()
     vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
   end,

@@ -6,7 +6,11 @@ return {
     'JavaHello/spring-boot.nvim',
   },
   config = function()
-    require('java').setup({})
+    require('java').setup({
+      jdtls = {
+        install = false,
+      }
+    })
     vim.lsp.config('jdtls', {
       settings = {
         java = {

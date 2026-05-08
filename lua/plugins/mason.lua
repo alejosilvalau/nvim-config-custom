@@ -89,18 +89,10 @@ return {
     })
 
     require('mason').setup({})
+
+    local env = require("environments")
     require('mason-lspconfig').setup({
-      ensure_installed = {
-        'ts_ls',
-        'lua_ls',
-        'tailwindcss',
-        'html',
-        'cssls',
-        'emmet_ls',
-        'bashls',
-        'sqlls',
-        'pyright'
-      },
+      ensure_installed = env.servers,
     })
 
     for _, server_name in ipairs(require('mason-lspconfig').get_installed_servers()) do

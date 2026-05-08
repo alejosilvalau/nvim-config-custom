@@ -18,6 +18,15 @@ return {
     window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "notify", "netrw", "lazy" },
     editor_only_render_when_focused = true,
   },
+  init = function()
+    vim.api.nvim_create_autocmd({ "BufWinLeave", "BufUnload" }, {
+      pattern = "*",
+      callback = function()
+        local ok, image = pcall(require, "image")
+        if ok then image.clear() end
+      end,
+    })
+  end,
   keys = {
     {
       "<leader>ic",
