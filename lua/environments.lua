@@ -4,10 +4,11 @@ local base = {
     lua = { "stylua" },
     bash = { "shfmt" },
     sh = { "shfmt" },
+    dotenv = {}
   },
   parsers = {
     "lua", "bash", "vim", "vimdoc", "query",
-    "markdown", "markdown_inline", "diff", "gitignore",
+    "markdown", "markdown_inline", "diff", "gitignore"
   }
 }
 
@@ -18,26 +19,32 @@ local environments = {
     formatters = vim.tbl_deep_extend("force", base.formatters, {
       javascript = { "prettierd", "prettier", stop_after_first = true },
       typescript = { "prettierd", "prettierd", stop_after_first = true },
+      html = { "prettierd", "prettierd", stop_after_first = true },
+      css = { "prettierd", "prettierd", stop_after_first = true },
       json = { "prettierd", "prettierd", stop_after_first = true },
       python = { "black", "isort" },
       sql = { "sql_formatter" },
       mysql = { "sql_formatter" },
-      xml = { "prettierd", "prettier", stop_after_first = true },
-      dotenv = {},
+      xml = { "prettierd", "prettier", stop_after_first = true }
     }),
     parsers = vim.list_extend(vim.deepcopy(base.parsers), {
       "javascript", "typescript", "jsdoc", "html", "css",
       "json", "xml", "sql", "python", "yaml", "toml",
-      "dockerfile", "http",
+      "dockerfile", "http"
     })
   },
-  python = {
-    servers = vim.list_extend(vim.deepcopy(base.servers), { 'pyright' }),
+  sgv = {
+    servers = vim.list_extend(vim.deepcopy(base.servers),
+      { 'pyright', 'tailwindcss', 'html', 'cssls', 'emmet_ls', 'sqlls' }),
     formatters = vim.tbl_deep_extend("force", base.formatters, {
       python = { "black", "isort" },
+      sql = { "sql_formatter" },
+      mysql = { "sql_formatter" },
+      html = { "prettierd", "prettierd", stop_after_first = true },
+      css = { "prettierd", "prettierd", stop_after_first = true }
     }),
     parsers = vim.list_extend(vim.deepcopy(base.parsers), {
-      "python", "yaml", "toml", "dockerfile",
+      "python", "yaml", "toml", "dockerfile", "sql", "json", "http", "html", "css"
     })
   },
 }
