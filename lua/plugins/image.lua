@@ -21,7 +21,8 @@ return {
   init = function()
     vim.api.nvim_create_autocmd({ "BufWinLeave", "BufUnload" }, {
       pattern = "*",
-      callback = function()
+      callback = function(ev)
+        if not vim.api.nvim_buf_is_valid(ev.buf) then return end
         local ok, image = pcall(require, "image")
         if ok then image.clear() end
       end,

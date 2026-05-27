@@ -15,7 +15,7 @@ local base = {
 local environments = {
   host = {
     servers = vim.list_extend(vim.deepcopy(base.servers),
-      { 'ts_ls', 'tailwindcss', 'html', 'cssls', 'emmet_ls', 'sqlls', 'pyright' }),
+      { 'ts_ls', 'tailwindcss', 'html', 'cssls', 'emmet_ls', 'sqlls', 'pyright', 'ruff' }),
     formatters = vim.tbl_deep_extend("force", base.formatters, {
       javascript = { "prettierd", "prettier", stop_after_first = true },
       typescript = { "prettierd", "prettierd", stop_after_first = true },
@@ -35,7 +35,7 @@ local environments = {
   },
   sgv = {
     servers = vim.list_extend(vim.deepcopy(base.servers),
-      { 'pyright', 'tailwindcss', 'html', 'cssls', 'emmet_ls', 'sqlls' }),
+      { 'pyright', 'ruff', 'tailwindcss', 'html', 'cssls', 'emmet_ls', 'sqlls' }),
     formatters = vim.tbl_deep_extend("force", base.formatters, {
       python = { "black", "isort" },
       sql = { "sql_formatter" },
