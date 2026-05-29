@@ -37,5 +37,21 @@ return {
       end,
       desc = "Clear rendered images",
     },
+    {
+      "<leader>it",
+      function()
+        local ok, image = pcall(require, "image")
+        if not ok then return end
+
+        if image.is_enabled() then
+          image.disable()
+          vim.notify("Image rendering disabled", vim.log.levels.INFO)
+        else
+          image.enable()
+          vim.notify("Image rendering enabled", vim.log.levels.INFO)
+        end
+      end,
+      desc = "Toggle image rendering",
+    },
   },
 }
