@@ -82,8 +82,7 @@ return {
             autoSearchPaths = true,
             useLibraryCodeForTypes = true,
           },
-          venvPath = ".",
-          venv = ".venv",
+          pythonPath = vim.env.VIRTUAL_ENV and (vim.env.VIRTUAL_ENV .. "/bin/python") or nil,
         }
       }
     })
