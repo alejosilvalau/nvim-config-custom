@@ -3,7 +3,6 @@ return {
   cmd = "Copilot",
   event = "InsertEnter",
   opts = {
-    copilot_model = "gpt-41-copilot",
     logger = {
       level = vim.log.levels.OFF,
     },
