@@ -40,70 +40,36 @@ return {
       )
     end
 
-    --- Convert src → tmp, then merge tmp into dst with `git merge-file`.
-    --- If dst doesn't exist yet, simply move tmp into place.
-    ---@param src string  absolute path of the source file
-    ---@param dst string  absolute path of the destination file
-    ---@param convert fun(src: string, tmp: string)
-    local function convert_with_merge(src, dst, convert)
-      -- Keep the correct extension so jupytext doesn't reject the output path.
-      -- e.g. dst = "/foo/notes.md"  →  tmp = "/tmp/jupytext_123456_notes.md"
-      local ext      = dst:match("[^.]+$")
-      local basename = dst:match("([^/]+)$")
-      local tmp      = string.format("/tmp/jupytext_%d_%s", os.time(), basename)
-      -- Sanity-check: ensure extension wasn't lost in the basename substitution
-      if not tmp:match("%." .. ext .. "$") then
-        tmp = tmp .. "." .. ext
-      end
-      convert(src, tmp)
-      if vim.v.shell_error ~= 0 then return end
-
-      if vim.fn.filereadable(dst) == 1 then
-        -- git merge-file writes the result in-place to the first argument;
-        -- we pass dst as both current and base so only new content is added.
-        vim.fn.system({
-          "git", "merge-file", "--theirs",
-          dst, -- current  (ours)
-          dst, -- base     (common ancestor — same, so only additions land)
-          tmp, -- other    (newly converted)
-        })
-        vim.fn.delete(tmp)
-        local ok = vim.v.shell_error == 0
-        vim.notify(
-          (ok and "Merged into: " or "Merge conflict in: ") .. dst,
-          ok and vim.log.levels.INFO or vim.log.levels.WARN
-        )
-      else
-        vim.loop.fs_rename(tmp, dst)
-        vim.notify("Created: " .. dst, vim.log.levels.INFO)
-      end
-    end
-
     -- ── custom commands ───────────────────────────────────────────────────────
 
-    -- .ipynb → .md  (merges if .md already exists)
-    vim.api.nvim_create_user_command("JupytextToMarkdown", function()
+    -- The Ultimate Sync command: markdown is considered the source of truth
+    vim.api.nvim_create_user_command("JupytextSync", function()
       local src = vim.fn.expand("%:p")
-      if not src:match("%.ipynb$") then
-        vim.notify("Not an .ipynb file", vim.log.levels.WARN); return
-      end
-      local dst = src:gsub("%.ipynb$", ".md")
-      convert_with_merge(src, dst, function(s, t)
-        run({ "jupytext", "--to", "markdown", s, "--output", t }, "jupytext → .md")
-      end)
-    end, { desc = "Convert .ipynb → .md (merge if exists)" })
+      local ext = src:match("[^.]+$")
 
-    -- .md → .ipynb  (merges if .ipynb already exists)
-    vim.api.nvim_create_user_command("JupytextToNotebook", function()
-      local src = vim.fn.expand("%:p")
-      if not src:match("%.md$") then
-        vim.notify("Not a .md file", vim.log.levels.WARN); return
+      if ext == "ipynb" then
+        local dst = src:gsub("%.ipynb$", ".md")
+        if vim.fn.filereadable(dst) == 1 then
+          -- Going into markdown: Jupytext natively updates the text content cells safely without --update
+          run({ "jupytext", "--to", "markdown", src, "--output", dst }, "Jupytext: Merged updates into .md")
+        else
+          -- Companion file doesn't exist: Create the .md file fresh
+          run({ "jupytext", "--to", "markdown", src, "--output", dst }, "Jupytext: Created paired .md")
+        end
+      elseif ext == "md" then
+        local dst = src:gsub("%.md$", ".ipynb")
+        if vim.fn.filereadable(dst) == 1 then
+          -- Going into notebook: --update is strictly REQUIRED here to keep cell outputs and insert edits
+          run({ "jupytext", "--to", "notebook", "--update", src, "--output", dst },
+            "Jupytext: Merged updates into .ipynb")
+        else
+          -- Companion file doesn't exist: Create the .ipynb file fresh
+          run({ "jupytext", "--to", "notebook", src, "--output", dst }, "Jupytext: Created paired .ipynb")
+        end
+      else
+        vim.notify("Not a valid Jupytext format (.md or .ipynb)", vim.log.levels.WARN)
       end
-      local dst = src:gsub("%.md$", ".ipynb")
-      convert_with_merge(src, dst, function(s, t)
-        run({ "jupytext", "--to", "notebook", s, "--output", t }, "jupytext → .ipynb")
-      end)
-    end, { desc = "Convert .md → .ipynb (merge if exists)" })
+    end, { desc = "Context-aware smart sync and merge for Jupytext pairings" })
 
     -- Init kernel that matches the active venv/pyenv automatically
     vim.api.nvim_create_user_command("MoltenInitVenv", function()
@@ -153,7 +119,6 @@ return {
     { "<leader>cmO", "<cmd>MoltenImportOutput<cr>", desc = "Import ← .ipynb" },
 
     -- ── Jupytext ──────────────────────────────────────────────────────────────
-    { "<leader>cjm", "<cmd>JupytextToMarkdown<cr>", desc = "Convert .ipynb → .md" },
-    { "<leader>cjj", "<cmd>JupytextToNotebook<cr>", desc = "Convert .md → .ipynb" },
+    { "<leader>cms", "<cmd>JupytextSync<cr>", desc = "Sync and smart merge paired files" },
   },
 }

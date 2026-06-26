@@ -30,7 +30,6 @@ return {
       { '<leader>ll',  group = 'Location',     mode = { 'n', 'v' } },
       { '<leader>c',   group = 'Code',         mode = { 'n', 'v' } },
       { '<leader>cm',  group = 'Molten',       mode = { 'n', 'v' } },
-      { '<leader>cj',  group = 'Jupytext',     mode = { 'n', 'v' } },
       { '<leader>cmo', group = 'Output',       mode = { 'n', 'v' } },
     },
   },
