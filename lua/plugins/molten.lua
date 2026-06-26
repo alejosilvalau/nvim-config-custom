@@ -89,7 +89,7 @@ return {
       end
       local dst = src:gsub("%.ipynb$", ".md")
       convert_with_merge(src, dst, function(s, t)
-        run({ "jupytext", "--to", "markdown", s, "--output", t }, "jupytext →md")
+        run({ "jupytext", "--to", "markdown", s, "--output", t }, "jupytext → .md")
       end)
     end, { desc = "Convert .ipynb → .md (merge if exists)" })
 
@@ -101,15 +101,9 @@ return {
       end
       local dst = src:gsub("%.md$", ".ipynb")
       convert_with_merge(src, dst, function(s, t)
-        run({ "jupytext", "--to", "notebook", s, "--output", t }, "jupytext →ipynb")
+        run({ "jupytext", "--to", "notebook", s, "--output", t }, "jupytext → .ipynb")
       end)
     end, { desc = "Convert .md → .ipynb (merge if exists)" })
-
-    -- Sync paired files in both directions
-    vim.api.nvim_create_user_command("JupytextSync", function()
-      local file = vim.fn.expand("%:p")
-      run({ "jupytext", "--sync", file }, "Synced " .. file)
-    end, { desc = "Sync paired jupytext files" })
 
     -- Init kernel that matches the active venv/pyenv automatically
     vim.api.nvim_create_user_command("MoltenInitVenv", function()
@@ -160,7 +154,6 @@ return {
 
     -- ── Jupytext ──────────────────────────────────────────────────────────────
     { "<leader>cjm", "<cmd>JupytextToMarkdown<cr>", desc = "Convert .ipynb → .md" },
-    { "<leader>cjn", "<cmd>JupytextToNotebook<cr>", desc = "Convert .md → .ipynb" },
-    { "<leader>cjs", "<cmd>JupytextSync<cr>", desc = "Sync paired notebook" },
+    { "<leader>cjj", "<cmd>JupytextToNotebook<cr>", desc = "Convert .md → .ipynb" },
   },
 }
