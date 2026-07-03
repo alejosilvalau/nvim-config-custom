@@ -41,7 +41,8 @@ local environments = {
       sql = { "sql_formatter" },
       mysql = { "sql_formatter" },
       html = { "prettierd", "prettierd", stop_after_first = true },
-      css = { "prettierd", "prettierd", stop_after_first = true }
+      css = { "prettierd", "prettierd", stop_after_first = true },
+      json = { "prettierd", "prettierd", stop_after_first = true }
     }),
     parsers = vim.list_extend(vim.deepcopy(base.parsers), {
       "python", "yaml", "toml", "dockerfile", "sql", "json", "http", "html", "css"
@@ -49,4 +50,4 @@ local environments = {
   },
 }
 
-return environments.host
+return environments.sgv

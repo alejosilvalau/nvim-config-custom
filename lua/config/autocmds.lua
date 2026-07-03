@@ -59,6 +59,19 @@ vim.api.nvim_create_autocmd("BufWritePost", {
   end,
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "netrw",
+  callback = function(ev)
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_valid(ev.buf) then
+        vim.opt_local.signcolumn = "yes"
+        require("netrw.ui").embelish(ev.buf)
+        require("netrw.actions").bind(ev.buf)
+      end
+    end)
+  end,
+})
+
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = "*.md",
   callback = function()
