@@ -65,7 +65,7 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.schedule(function()
       if vim.api.nvim_buf_is_valid(ev.buf) then
         vim.opt_local.signcolumn = "yes"
-        require("netrw.ui").embelish(ev.buf)
+        pcall(require("netrw.ui").embelish, ev.buf)
         require("netrw.actions").bind(ev.buf)
       end
     end)
